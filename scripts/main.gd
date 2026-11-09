@@ -5,12 +5,25 @@ const IGNITION_RADIUS: float = 70.0
 
 @onready var chamber: ColorRect = $%Chamber
 @onready var pulse_container: Node2D = $%Pulses
+@onready var banana_container: Node2D = $%Bananas
 
 var shot_used: bool = false
 var active_pulses: Array[Pulse] = []
+var bananas: Array[Banana] = []
 
 func _ready() -> void:
+	for child in banana_container.get_children():
+		var banana := child as Banana
+		
+		if banana == null:
+			continue
+		
+		bananas.append(banana)
+		banana.split_occurred.connect(_on_banana_split)
 	print("Bananilator ready!")
+
+func _on_banana_split(banana: Banana) -> void:
+	_spawn_pulse(banana.global_position, banana.reaction_radius)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart"):
@@ -31,6 +44,10 @@ func _physics_process(delta: float) -> void:
 	
 	for pulse in current_pulses:
 		pulse.advance(delta)
+		
+		for banana in bananas:
+			if banana.alive and pulse.reaches(banana.global_position, banana.hit_radius):
+				banana.split()
 		
 		if pulse.has_finished():
 			active_pulses.erase(pulse)

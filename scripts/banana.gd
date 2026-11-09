@@ -1,6 +1,9 @@
 @tool
 extends Node2D
 class_name Banana
+signal split_occurred(banana: Banana)
+@export_range(10.0, 300.0, 1.0) var reaction_radius: float = 90.0
+var alive: bool = true
 
 @export_range(4.0, 64.0, 1.0) var hit_radius: float = 18.0:
 	set(value):
@@ -37,3 +40,11 @@ func _draw() -> void:
 		true
 	)
 	
+
+func split() -> void:
+	if not alive:
+		return
+	
+	alive = false
+	hide()
+	split_occurred.emit(self)

@@ -16,6 +16,11 @@ func advance(delta: float) -> void:
 func has_finished() -> bool:
 	return age >= expansion_time + fade_time
 
+func reaches(world_position: Vector2, target_radius: float) -> bool:
+	var combined_radius: float = radius + target_radius
+	
+	return global_position.distance_squared_to(world_position) <= (combined_radius * combined_radius)
+
 func _draw() -> void:
 	if radius <= 0.0:
 		return
