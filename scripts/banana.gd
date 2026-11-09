@@ -1,0 +1,39 @@
+@tool
+extends Node2D
+class_name Banana
+
+@export_range(4.0, 64.0, 1.0) var hit_radius: float = 18.0:
+	set(value):
+		hit_radius = value
+		queue_redraw()
+
+@export var texture: Texture2D:
+	set(value):
+		texture = value
+		queue_redraw()
+
+func _draw() -> void:
+	if texture == null:
+		draw_circle(Vector2.ZERO, hit_radius, Color("ffd23f"))
+	else:
+		var image_size: Vector2 = texture.get_size()
+		var largest_side: float = maxf(image_size.x, image_size.y)
+		var draw_size: Vector2 = image_size * (hit_radius * 2.0 / largest_side)
+		
+		draw_texture_rect(
+			texture,
+			Rect2(-draw_size * 0.5, draw_size),
+			false
+		)
+	
+	draw_arc(
+		Vector2.ZERO,
+		hit_radius,
+		0.0,
+		TAU,
+		40,
+		Color(1.0, 0.85, 0.25, 0.5),
+		1.0,
+		true
+	)
+	

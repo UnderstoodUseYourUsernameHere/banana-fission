@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://djhn8sb53cfce"]
 
 [ext_resource type="Script" uid="uid://b38ta8saxrjul" path="res://scripts/main.gd" id="1_o5qli"]
+[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_0wfyh"]
 
 [node name="Main" type="Node2D" unique_id=922528448]
 script = ExtResource("1_o5qli")
@@ -12,6 +13,7 @@ mouse_filter = 2
 color = Color(0.050980393, 0.043137256, 0.07058824, 1)
 
 [node name="Chamber" type="ColorRect" parent="." unique_id=925957490]
+unique_name_in_owner = true
 offset_left = 40.0
 offset_top = 80.0
 offset_right = 920.0
@@ -21,7 +23,11 @@ color = Color(0.09411765, 0.12941177, 0.16862746, 1)
 
 [node name="Bananas" type="Node2D" parent="." unique_id=1813059093]
 
+[node name="Banana" parent="Bananas" unique_id=993941136 instance=ExtResource("2_0wfyh")]
+position = Vector2(500, 300)
+
 [node name="Pulses" type="Node2D" parent="." unique_id=402704835]
+unique_name_in_owner = true
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1960986048]
 
