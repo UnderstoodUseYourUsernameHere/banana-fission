@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://djhn8sb53cfce"]
+
+[ext_resource type="Script" uid="uid://b38ta8saxrjul" path="res://scripts/main.gd" id="1_o5qli"]
+
+[node name="Main" type="Node2D" unique_id=922528448]
+script = ExtResource("1_o5qli")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1974400762]
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.050980393, 0.043137256, 0.07058824, 1)
+
+[node name="Chamber" type="ColorRect" parent="." unique_id=925957490]
+offset_left = 40.0
+offset_top = 80.0
+offset_right = 920.0
+offset_bottom = 500.0
+mouse_filter = 2
+color = Color(0.09411765, 0.12941177, 0.16862746, 1)
+
+[node name="Bananas" type="Node2D" parent="." unique_id=1813059093]
+
+[node name="Pulses" type="Node2D" parent="." unique_id=402704835]
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1960986048]
+
+[node name="Title" type="Label" parent="HUD" unique_id=356108313]
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 24
+
+[node name="Status" type="Label" parent="HUD" unique_id=674105017]
+offset_left = 360.0
+offset_top = 26.0
+offset_right = 940.0
+offset_bottom = 54.0
+text = "RATTICUS' BANANILATOR"
+
+[node name="Help" type="Label" parent="HUD" unique_id=395654825]
+offset_left = 40.0
+offset_top = 508.0
+offset_right = 920.0
+offset_bottom = 532.0
