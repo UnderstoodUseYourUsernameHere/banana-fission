@@ -55,6 +55,7 @@ offset_bottom = 60.0
 theme_override_font_sizes/font_size = 24
 
 [node name="Status" type="Label" parent="HUD" unique_id=674105017]
+unique_name_in_owner = true
 offset_left = 360.0
 offset_top = 26.0
 offset_right = 940.0
