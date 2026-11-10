@@ -6,6 +6,7 @@ const IGNITION_RADIUS: float = 70.0
 @onready var chamber: ColorRect = $%Chamber
 @onready var pulse_container: Node2D = $%Pulses
 @onready var banana_container: Node2D = $%Bananas
+@onready var aim: AimController = $%Aim
 
 var shot_used: bool = false
 var active_pulses: Array[Pulse] = []
@@ -20,7 +21,19 @@ func _ready() -> void:
 		
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
+	
+	aim.ignited.connect(_on_ignited)
+	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS)
+	
 	print("Bananilator ready!")
+
+func _on_ignited(world_position: Vector2) -> void:
+	if shot_used:
+		return
+	
+	shot_used = true
+	aim.active = false
+	_spawn_pulse(world_position, IGNITION_RADIUS)
 
 func _on_banana_split(banana: Banana) -> void:
 	_spawn_pulse(banana.global_position, banana.reaction_radius)
@@ -30,14 +43,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		get_tree().reload_current_scene()
 		return
-	
-	if event.is_action_pressed("ignite") and not shot_used:
-		var world_position: Vector2 = get_global_mouse_position()
-		
-		if chamber.get_global_rect().has_point(world_position):
-			get_viewport().set_input_as_handled()
-			shot_used = true
-			_spawn_pulse(world_position, IGNITION_RADIUS) 
 
 func _physics_process(delta: float) -> void:
 	var current_pulses: Array[Pulse] = active_pulses.duplicate()

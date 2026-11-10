@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b38ta8saxrjul" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_0wfyh"]
+[ext_resource type="Script" uid="uid://t482fluxjctx" path="res://scripts/aim.gd" id="3_sugp2"]
 
 [node name="Main" type="Node2D" unique_id=922528448]
 script = ExtResource("1_o5qli")
@@ -39,6 +40,10 @@ position = Vector2(660, 181)
 
 [node name="Pulses" type="Node2D" parent="." unique_id=402704835]
 unique_name_in_owner = true
+
+[node name="Aim" type="Node2D" parent="." unique_id=1676966634]
+unique_name_in_owner = true
+script = ExtResource("3_sugp2")
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1960986048]
 
