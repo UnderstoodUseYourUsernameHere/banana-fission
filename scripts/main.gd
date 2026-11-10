@@ -17,6 +17,10 @@ enum RoundState {
 @onready var banana_container: Node2D = $%Bananas
 @onready var aim: AimController = $%Aim
 @onready var status: Label = $%Status
+@onready var power_label: Label = $%PowerLabel
+@onready var power_bar: ProgressBar = $%PowerBar
+@onready var heat_label: Label = $%HeatLabel
+@onready var heat_bar: ProgressBar = $%HeatBar
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -115,6 +119,8 @@ func _finish_round() -> void:
 	_update_status()
 
 func _update_status() -> void:
+	_update_readouts()
+	
 	match state:
 		RoundState.AIMING:
 			status.text = "Choose your target!  |  1 shot  |  %d bananas" % (bananas.size())
@@ -127,3 +133,13 @@ func _update_status() -> void:
 				status.text = "STABLE! Power %d  |  Heat %d  | R to retry!" % [power_total, heat_total]
 			else:
 				status.text = "NOT ENOUGH POWER: %d / %d  |  R to retry?" % [power_total, power_target] 
+
+func _update_readouts() -> void:
+	power_label.text = "Power: %d / %d" % [power_total, power_target]
+	heat_label.text = "Heat: %d / %d" % [heat_total, heat_limit]
+	
+	power_bar.max_value = power_target
+	power_bar.value = power_total
+	
+	heat_bar.max_value = heat_limit
+	heat_bar.value = heat_total
