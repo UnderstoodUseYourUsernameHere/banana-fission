@@ -5,6 +5,9 @@ signal split_occurred(banana: Banana)
 @export_range(10.0, 300.0, 1.0) var reaction_radius: float = 90.0
 var alive: bool = true
 
+@export_range(0, 20, 1) var power_yield: int = 1
+@export_range(0, 20, 1) var heat_yield: int = 1
+
 @export_range(4.0, 64.0, 1.0) var hit_radius: float = 18.0:
 	set(value):
 		hit_radius = value
