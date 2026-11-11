@@ -29,6 +29,7 @@ var heat_limit: int = 7
 @onready var heat_bar: ProgressBar = $%HeatBar
 @onready var effect_container: Node2D = $%Effects
 @onready var retry_button: Button = $%Retry
+@onready var continue_button: Button = $%Continue
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -44,6 +45,7 @@ func _ready() -> void:
 	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS)
 	
 	retry_button.pressed.connect(_restart_attempt)
+	continue_button.pressed.connect(_on_continue_pressed)
 	_update_status()
 	print("Bananilator ready!")
 
@@ -76,6 +78,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_restart_attempt()
 		return
+	
+	if event.is_action_pressed("continue"):
+		get_viewport().set_input_as_handled()
+		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
+		get_tree().reload_current_scene()
 
 func _physics_process(delta: float) -> void:
 	if state == RoundState.AIMING or state == RoundState.REACTING:
@@ -128,6 +135,7 @@ func _finish_round() -> void:
 		pulse.queue_free()
 		
 	active_pulses.clear()
+	continue_button.visible = _won()
 	_update_status()
 
 func _update_status() -> void:
@@ -202,3 +210,13 @@ func _load_level() -> void:
 			continue
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
+
+func _won() -> bool:
+	return heat_total <= heat_limit and power_total >= power_target
+
+func _on_continue_pressed() -> void:
+	if Progress.is_last_level():
+		Progress.current_level = 0
+	else:
+		Progress.current_level += 1
+	get_tree().reload_current_scene()

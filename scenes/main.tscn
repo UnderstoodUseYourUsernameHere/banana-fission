@@ -60,7 +60,7 @@ text = "RATTICUS' BANANILATOR"
 [node name="Help" type="Label" parent="HUD" unique_id=395654825]
 offset_left = 40.0
 offset_top = 508.0
-offset_right = 760.0
+offset_right = 600.0
 offset_bottom = 532.0
 
 [node name="PowerLabel" type="Label" parent="HUD" unique_id=305983461]
@@ -116,3 +116,13 @@ offset_left = 60.0
 offset_top = 462.0
 offset_right = 900.0
 offset_bottom = 490.0
+
+[node name="Continue" type="Button" parent="HUD" unique_id=69068153]
+unique_name_in_owner = true
+visible = false
+offset_left = 620.0
+offset_top = 504.0
+offset_right = 770.0
+offset_bottom = 536.0
+focus_mode = 0
+text = "Continue ▶"
