@@ -27,7 +27,7 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	
-	_velocity = Vector2.RIGHT.rotated(deg_to_rad(start_angle_degrees) * drift_speed)
+	_velocity = Vector2.RIGHT.rotated(deg_to_rad(start_angle_degrees)) * drift_speed
 
 func _draw() -> void:
 	if texture == null:
@@ -86,3 +86,6 @@ func advance_motion(delta: float, chamber_bounds: Rect2) -> void:
 		_velocity.y = -absf(_velocity.y)
 	
 	global_position = next_position
+
+func get_drift_velocity() -> Vector2:
+	return _velocity

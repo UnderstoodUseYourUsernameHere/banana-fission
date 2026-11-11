@@ -18,7 +18,7 @@ func configure(chamber_bounds: Rect2, bananas: Array[Banana], pulse_radius: floa
 	ignition_radius = pulse_radius
 	active = true
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if active:
 		queue_redraw()
 
@@ -61,9 +61,17 @@ func _draw() -> void:
 		Color.WHITE
 	)
 	
+	draw_line(
+		centre + Vector2(0.0, -5.0),
+		centre + Vector2(0.0, 5.0),
+		Color.WHITE
+	)
+	
 	for banana in targets:
 		if not banana.alive:
 			continue
+		
+		_draw_motion_guide(banana)
 		
 		var reach: float = ignition_radius + banana.hit_radius
 		
@@ -78,3 +86,18 @@ func _draw() -> void:
 				2.0,
 				true
 			)
+
+func _draw_motion_guide(banana: Banana) -> void:
+	var drift: Vector2 = banana.get_drift_velocity()
+	
+	if drift.length_squared() < 0.001:
+		return
+	
+	var direction: Vector2 = drift.normalized()
+	var start: Vector2 = to_local(banana.global_position) + direction * (banana.hit_radius + 7.0)
+	var tip: Vector2 = start + direction * 18.0
+	var guide_color := Color(1.0, 1.0, 1.0, 0.35)
+	
+	draw_line(start, tip, guide_color, 1.5, true)
+	draw_line(tip, tip - direction.rotated(0.55) * 6.0, guide_color, 1.5, true)
+	draw_line(tip, tip - direction.rotated(-0.55) * 6.0, guide_color, 1.5, true)
