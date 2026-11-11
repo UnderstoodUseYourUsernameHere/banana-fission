@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://lcivk4n1sl6u"]
+
+[ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_i2aat"]
+[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_2djvx"]
+
+[node name="Level" type="Node2D" unique_id=964198586]
+script = ExtResource("1_i2aat")
+title = "First Split"
+ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
+
+[node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_2djvx")]
+position = Vector2(500, 300)
+drift_speed = 14.0
+start_angle_degrees = 22.0
+
+[node name="Banana2" parent="." unique_id=71259297 instance=ExtResource("2_2djvx")]
+position = Vector2(488, 199)
+kind = 1
+drift_speed = 100.0
+start_angle_degrees = 65.0
+
+[node name="Banana3" parent="." unique_id=1745667669 instance=ExtResource("2_2djvx")]
+position = Vector2(600, 150)
+drift_speed = 100.0
+start_angle_degrees = 65.0
+
+[node name="Banana4" parent="." unique_id=213498638 instance=ExtResource("2_2djvx")]
+position = Vector2(660, 181)
+drift_speed = 30.0
+start_angle_degrees = 160.0
+
+[node name="Banana5" parent="." unique_id=1736657249 instance=ExtResource("2_2djvx")]
+position = Vector2(589, 238)
+drift_speed = 24.0
+start_angle_degrees = 67.0
+
+[node name="Banana6" parent="." unique_id=248285369 instance=ExtResource("2_2djvx")]
+position = Vector2(438, 375)
+drift_speed = 27.0
+start_angle_degrees = 215.0
+
+[node name="Banana7" parent="." unique_id=558535088 instance=ExtResource("2_2djvx")]
+position = Vector2(365, 405)
+drift_speed = 60.0
+start_angle_degrees = 360.0

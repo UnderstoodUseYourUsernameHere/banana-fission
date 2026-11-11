@@ -12,12 +12,15 @@ enum RoundState {
 	COMPLETE
 }
 
-@export_range(1, 100, 1) var power_target: int = 6
-@export_range(1, 100, 1) var heat_limit: int = 7
+var level: Level
+var power_target: int = 6
+var heat_limit: int = 7
+
 
 @onready var chamber: ColorRect = $%Chamber
 @onready var pulse_container: Node2D = $%Pulses
-@onready var banana_container: Node2D = $%Bananas
+@onready var level_holder: Node2D = $%LevelHolder
+@onready var intro: Label = $%Intro
 @onready var aim: AimController = $%Aim
 @onready var status: Label = $%Status
 @onready var power_label: Label = $%PowerLabel
@@ -35,14 +38,7 @@ var power_total: int = 0
 var heat_total: int = 0
 
 func _ready() -> void:
-	for child in banana_container.get_children():
-		var banana := child as Banana
-		
-		if banana == null:
-			continue
-		
-		bananas.append(banana)
-		banana.split_occurred.connect(_on_banana_split)
+	_load_level()
 	
 	aim.ignited.connect(_on_ignited)
 	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS)
@@ -57,6 +53,7 @@ func _on_ignited(world_position: Vector2) -> void:
 	
 	state = RoundState.REACTING
 	aim.active = false
+	intro.visible = false
 	_spawn_pulse(world_position, IGNITION_RADIUS)
 	_update_status()
 
@@ -138,7 +135,7 @@ func _update_status() -> void:
 	
 	match state:
 		RoundState.AIMING:
-			status.text = "Choose your target!  |  1 shot  |  %d bananas" % (bananas.size())
+			status.text = "%s  |  1 shot  |  %d bananas" % [level.title, bananas.size()]
 		RoundState.REACTING:
 			status.text = "Bananas splitting... %d / %d split" % [split_count, bananas.size()]
 		RoundState.COMPLETE:
@@ -187,3 +184,21 @@ func _spawn_split_halves(banana: Banana) -> void:
 
 func _restart_attempt() -> void:
 	get_tree().reload_current_scene()
+
+func _load_level() -> void:
+	var index: int = clampi(Progress.current_level, 0, Progress.level_count() - 1)
+	Progress.current_level = index
+	
+	level = Progress.levels[index].instantiate() as Level
+	level_holder.add_child(level)
+	
+	power_target = level.power_target
+	heat_limit = level.heat_limit
+	intro.text = level.ratticus_line
+	
+	for child in level.get_children():
+		var banana := child as Banana
+		if banana == null:
+			continue
+		bananas.append(banana)
+		banana.split_occurred.connect(_on_banana_split)
