@@ -73,6 +73,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 func _physics_process(delta: float) -> void:
+	if state == RoundState.AIMING or state == RoundState.REACTING:
+		var chamber_bounds: Rect2 = chamber.get_global_rect()
+		
+		for banana in bananas:
+			banana.advance_motion(delta, chamber_bounds)
+	
 	if state != RoundState.REACTING:
 		return
 	

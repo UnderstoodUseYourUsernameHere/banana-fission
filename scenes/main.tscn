@@ -34,32 +34,38 @@ unique_name_in_owner = true
 
 [node name="Banana" parent="Bananas" unique_id=993941136 instance=ExtResource("2_0wfyh")]
 position = Vector2(500, 300)
-power_yield = null
-heat_yield = null
+drift_speed = 14.0
+start_angle_degrees = 22.0
 
 [node name="Banana2" parent="Bananas" unique_id=1195052591 instance=ExtResource("2_0wfyh")]
 position = Vector2(488, 199)
-power_yield = null
-heat_yield = null
+drift_speed = 100.0
+start_angle_degrees = 65.0
 
 [node name="Banana3" parent="Bananas" unique_id=753059844 instance=ExtResource("2_0wfyh")]
 position = Vector2(600, 150)
-power_yield = null
-heat_yield = null
+drift_speed = 100.0
+start_angle_degrees = 65.0
 
 [node name="Banana4" parent="Bananas" unique_id=985722857 instance=ExtResource("2_0wfyh")]
 position = Vector2(660, 181)
-power_yield = null
-heat_yield = null
+drift_speed = 30.0
+start_angle_degrees = 160.0
 
 [node name="Banana5" parent="Bananas" unique_id=1469265384 instance=ExtResource("2_0wfyh")]
 position = Vector2(589, 238)
+drift_speed = 24.0
+start_angle_degrees = 67.0
 
 [node name="Banana6" parent="Bananas" unique_id=1158204577 instance=ExtResource("2_0wfyh")]
 position = Vector2(438, 375)
+drift_speed = 27.0
+start_angle_degrees = 215.0
 
 [node name="Banana7" parent="Bananas" unique_id=1937469306 instance=ExtResource("2_0wfyh")]
 position = Vector2(365, 405)
+drift_speed = 60.0
+start_angle_degrees = 360.0
 
 [node name="Pulses" type="Node2D" parent="." unique_id=402704835]
 unique_name_in_owner = true
