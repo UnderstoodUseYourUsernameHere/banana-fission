@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bfygayeyh3xin"]
+
+[ext_resource type="Script" uid="uid://bfoqknxbc3b4" path="res://scripts/split_burst.gd" id="1_c7pto"]
+
+[node name="SplitBurst" type="Node2D" unique_id=1600536183]
+script = ExtResource("1_c7pto")

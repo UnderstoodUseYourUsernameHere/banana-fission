@@ -1,6 +1,7 @@
 extends Node2D
 
 const PULSE_SCENE = preload("res://scenes/pulse.tscn")
+const SPLIT_BURST_SCENE = preload("res://scenes/split_burst.tscn")
 const IGNITION_RADIUS: float = 70.0
 
 enum RoundState {
@@ -21,6 +22,7 @@ enum RoundState {
 @onready var power_bar: ProgressBar = $%PowerBar
 @onready var heat_label: Label = $%HeatLabel
 @onready var heat_bar: ProgressBar = $%HeatBar
+@onready var effect_container: Node2D = $%Effects
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -56,6 +58,7 @@ func _on_ignited(world_position: Vector2) -> void:
 
 func _on_banana_split(banana: Banana) -> void:
 	split_count += 1
+	_spawn_split_burst(banana.global_position)
 	power_total += banana.power_yield
 	heat_total += banana.heat_yield
 	
@@ -149,3 +152,8 @@ func _update_readouts() -> void:
 	
 	heat_bar.max_value = heat_limit
 	heat_bar.value = heat_total
+
+func _spawn_split_burst(world_position: Vector2) -> void:
+	var burst: Node2D = SPLIT_BURST_SCENE.instantiate()
+	effect_container.add_child(burst)
+	burst.global_position = world_position

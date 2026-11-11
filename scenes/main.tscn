@@ -70,6 +70,9 @@ start_angle_degrees = 360.0
 [node name="Pulses" type="Node2D" parent="." unique_id=402704835]
 unique_name_in_owner = true
 
+[node name="Effects" type="Node2D" parent="." unique_id=2135317135]
+unique_name_in_owner = true
+
 [node name="Aim" type="Node2D" parent="." unique_id=1676966634]
 unique_name_in_owner = true
 script = ExtResource("3_sugp2")
