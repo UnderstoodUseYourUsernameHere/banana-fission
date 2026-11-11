@@ -71,7 +71,7 @@ func _on_banana_split(banana: Banana) -> void:
 		_finish_round()
 		return
 	
-	_spawn_pulse(banana.global_position, banana.reaction_radius)
+	_spawn_pulse(banana.global_position, banana.reaction_radius, banana.pulse_color())
 	_update_status()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -110,9 +110,10 @@ func _physics_process(delta: float) -> void:
 	if active_pulses.is_empty():
 		_finish_round()
 
-func _spawn_pulse(world_position: Vector2, maximum_radius: float) -> void:
+func _spawn_pulse(world_position: Vector2, maximum_radius: float, ring_color: Color = Color(0.4, 0.95, 1.0)) -> void:
 	var pulse := PULSE_SCENE.instantiate() as Pulse
 	pulse.max_radius = maximum_radius
+	pulse.ring_color = ring_color
 	
 	pulse_container.add_child(pulse)
 	pulse.global_position = world_position

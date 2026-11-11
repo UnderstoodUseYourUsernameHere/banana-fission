@@ -2,6 +2,15 @@
 extends Node2D
 class_name Banana
 signal split_occurred(banana: Banana)
+
+enum Kind { NORMAL, OVERRIPE }
+
+@export var kind: Kind = Kind.NORMAL:
+	set(value):
+		kind = value
+		_apply_kind()
+		queue_redraw()
+
 @export_range(10.0, 300.0, 1.0) var reaction_radius: float = 90.0
 var alive: bool = true
 var _velocity: Vector2 = Vector2.ZERO
@@ -32,30 +41,24 @@ func _ready() -> void:
 	_velocity = Vector2.RIGHT.rotated(deg_to_rad(start_angle_degrees)) * drift_speed
 
 func _draw() -> void:
+	var tint: Color = Color.WHITE if kind == Kind.NORMAL else Color("c08a3c")
+	
 	if texture == null:
-		draw_circle(Vector2.ZERO, hit_radius, Color("ffd23f"))
+		var body: Color = Color("ffd23f") if kind == Kind.NORMAL else Color("a9802c")
+		draw_circle(Vector2.ZERO, hit_radius, body)
 	else:
 		var image_size: Vector2 = texture.get_size()
 		var largest_side: float = maxf(image_size.x, image_size.y)
 		var draw_size: Vector2 = image_size * (hit_radius * 2.0 / largest_side)
-		
-		draw_texture_rect(
-			texture,
-			Rect2(-draw_size * 0.5, draw_size),
-			false
-		)
+		draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, tint)
 	
-	draw_arc(
-		Vector2.ZERO,
-		hit_radius,
-		0.0,
-		TAU,
-		40,
-		Color(1.0, 0.85, 0.25, 0.5),
-		1.0,
-		true
-	)
+	if kind == Kind.OVERRIPE:
+		var spot := Color("4a3418")
+		draw_circle(Vector2(-6.0, -4.0) * hit_radius / 18.0, 3.0, spot)
+		draw_circle(Vector2(5.0, 2.0) * hit_radius / 18.0, 4.0, spot)
+		draw_circle(Vector2(-1.0, 8.0) * hit_radius / 18.0, 2.5, spot)
 	
+	draw_arc(Vector2.ZERO, hit_radius, 0.0, TAU, 40, Color(1.0, 0.85, 0.25, 0.5), 1.0, true)
 
 func split() -> void:
 	if not alive:
@@ -91,3 +94,13 @@ func advance_motion(delta: float, chamber_bounds: Rect2) -> void:
 
 func get_drift_velocity() -> Vector2:
 	return _velocity
+
+func _apply_kind() -> void:
+	match kind:
+		Kind.NORMAL:
+			power_yield = 1
+			heat_yield = 1
+			reaction_radius = 160.0
+
+func pulse_color() -> Color:
+	return Color(0.4, 0.95, 1.0) if kind == Kind.NORMAL else Color(0.6, 1.0, 0.35)

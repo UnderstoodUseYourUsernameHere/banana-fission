@@ -7,6 +7,7 @@ class_name Pulse
 
 var radius: float = 0.0
 var age: float = 0.0
+var ring_color: Color = Color(0.4, 0.95, 1.0)
 
 func advance(delta: float) -> void:
 	age += delta
@@ -37,7 +38,7 @@ func _draw() -> void:
 	draw_circle(
 		Vector2.ZERO,
 		radius,
-		Color(0.25, 0.85, 1.0, 0.12 * opacity)
+		Color(ring_color, 0.12 * opacity)
 	)
 	
 	draw_arc(
@@ -46,7 +47,7 @@ func _draw() -> void:
 		0.0,
 		TAU,
 		64,
-		Color(0.4, 0.95, 1.0, opacity),
+		Color(ring_color, opacity),
 		2.0,
 		true
 	)
