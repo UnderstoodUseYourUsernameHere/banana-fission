@@ -23,6 +23,8 @@ var _velocity: Vector2 = Vector2.ZERO
 		texture = value
 		queue_redraw()
 
+@export var half_texture: Texture2D
+
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return

@@ -2,6 +2,8 @@ extends Node2D
 
 const PULSE_SCENE = preload("res://scenes/pulse.tscn")
 const SPLIT_BURST_SCENE = preload("res://scenes/split_burst.tscn")
+const BANANA_HALF_SCENE = preload("res://scenes/banana_half.tscn")
+const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 
 enum RoundState {
@@ -59,6 +61,7 @@ func _on_ignited(world_position: Vector2) -> void:
 func _on_banana_split(banana: Banana) -> void:
 	split_count += 1
 	_spawn_split_burst(banana.global_position)
+	_spawn_split_halves(banana)
 	power_total += banana.power_yield
 	heat_total += banana.heat_yield
 	
@@ -157,3 +160,24 @@ func _spawn_split_burst(world_position: Vector2) -> void:
 	var burst: Node2D = SPLIT_BURST_SCENE.instantiate()
 	effect_container.add_child(burst)
 	burst.global_position = world_position
+
+func _spawn_split_halves(banana: Banana) -> void:
+	var drift: Vector2 = banana.get_drift_velocity()
+	var axis: Vector2 = Vector2.RIGHT
+	
+	if drift.length_squared() > 0.001:
+		axis = drift.normalized().orthogonal()
+	
+	for side in [-1.0, 1.0]:
+		var half := BANANA_HALF_SCENE.instantiate() as BananaHalf
+		half.texture = banana.half_texture
+		half.size = banana.hit_radius
+		half.velocity = axis * side * HALF_SPEED + drift * 0.5
+		half.spin = side * 6.0
+		half.rotation = axis.angle()
+		
+		if side < 0.0:
+			half.scale.x = -1.0
+		
+		effect_container.add_child(half)
+		half.global_position = banana.global_position + axis * side * banana.hit_radius * 0.3

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://d1xckeno0urdd"]
+
+[ext_resource type="Script" uid="uid://hsglc0x72n1l" path="res://scripts/banana_half.gd" id="1_4m56c"]
+
+[node name="BananaHalf" type="Node2D" unique_id=704969806]
+script = ExtResource("1_4m56c")
