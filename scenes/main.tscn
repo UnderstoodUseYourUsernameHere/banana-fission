@@ -97,7 +97,7 @@ text = "RATTICUS' BANANILATOR"
 [node name="Help" type="Label" parent="HUD" unique_id=395654825]
 offset_left = 40.0
 offset_top = 508.0
-offset_right = 920.0
+offset_right = 760.0
 offset_bottom = 532.0
 
 [node name="PowerLabel" type="Label" parent="HUD" unique_id=305983461]
@@ -137,3 +137,12 @@ mouse_filter = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_mi5ts")
 step = 1.0
 show_percentage = false
+
+[node name="Retry" type="Button" parent="HUD" unique_id=839248469]
+unique_name_in_owner = true
+offset_left = 780.0
+offset_top = 504.0
+offset_right = 920.0
+offset_bottom = 536.0
+focus_mode = 0
+text = "Retry! (R)"

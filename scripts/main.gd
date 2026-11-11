@@ -25,6 +25,7 @@ enum RoundState {
 @onready var heat_label: Label = $%HeatLabel
 @onready var heat_bar: ProgressBar = $%HeatBar
 @onready var effect_container: Node2D = $%Effects
+@onready var retry_button: Button = $%Retry
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -46,6 +47,7 @@ func _ready() -> void:
 	aim.ignited.connect(_on_ignited)
 	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS)
 	
+	retry_button.pressed.connect(_restart_attempt)
 	_update_status()
 	print("Bananilator ready!")
 
@@ -75,7 +77,7 @@ func _on_banana_split(banana: Banana) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart"):
 		get_viewport().set_input_as_handled()
-		get_tree().reload_current_scene()
+		_restart_attempt()
 		return
 
 func _physics_process(delta: float) -> void:
@@ -181,3 +183,6 @@ func _spawn_split_halves(banana: Banana) -> void:
 		
 		effect_container.add_child(half)
 		half.global_position = banana.global_position + axis * side * banana.hit_radius * 0.3
+
+func _restart_attempt() -> void:
+	get_tree().reload_current_scene()
