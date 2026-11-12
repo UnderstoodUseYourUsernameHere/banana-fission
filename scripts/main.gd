@@ -32,6 +32,7 @@ var heat_limit: int = 7
 @onready var retry_button: Button = $%Retry
 @onready var continue_button: Button = $%Continue
 @onready var scram_button: Button = $%Scram
+@onready var help_label: Label = $%Help
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -41,6 +42,7 @@ var rods: Array[Rect2] = []
 var power_total: int = 0
 var heat_total: int = 0
 var scram_used: bool = false
+var earned_stars: int = 0
 
 func _ready() -> void:
 	_load_level()
@@ -52,6 +54,7 @@ func _ready() -> void:
 	continue_button.pressed.connect(_on_continue_pressed)
 	scram_button.pressed.connect(_use_scram)
 	scram_button.visible = false
+	help_label.text = "LMB: Ignite  |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
 	_update_status()
 	print("Bananilator ready!")
 
@@ -170,6 +173,7 @@ func _finish_round() -> void:
 		pulse.queue_free()
 		
 	active_pulses.clear()
+	earned_stars = _calculate_stars()
 	continue_button.visible = _won()
 	if _won():
 		Progress.record_clear()
@@ -188,11 +192,11 @@ func _update_status() -> void:
 			status.text = "Bananas splitting... %d / %d split%s" % [split_count, bananas.size(), scram_hint]
 		RoundState.COMPLETE:
 			if heat_total > heat_limit:
-				status.text = "OVERHEATED! Heat %d / %d  |  R to retry!" % [heat_total, heat_limit]
-			elif power_total >= power_target:
-				status.text = "%sSTABLE! Power %d  |  Heat %d  | R to retry!" % [scram_prefix, power_total, heat_total]
+				status.text = "OVERHEATED! Rating 0/3  |  Heat %d / %d  |  R to retry!" % [heat_total, heat_limit]
+			elif _won():
+				status.text = "%sSTABLE! Rating %d/3  |  Power %d  |  Heat %d" % [scram_prefix, earned_stars, power_total, heat_total]
 			else:
-				status.text = "%sNOT ENOUGH POWER: %d / %d  |  R to retry?" % [scram_prefix, power_total, power_target] 
+				status.text = "%sNOT ENOUGH POWER! Rating 0/3  |  Power %d  |  Heat %d  |  R to retry!" % [scram_prefix, power_total, power_target]
 
 func _update_readouts() -> void:
 	power_label.text = "Power: %d / %d" % [power_total, power_target]
@@ -268,3 +272,17 @@ func _on_continue_pressed() -> void:
 	else:
 		Progress.current_level += 1
 	get_tree().reload_current_scene()
+
+func _calculate_stars() -> int:
+	if not _won():
+		return 0
+	
+	if scram_used: 
+		return 1
+	
+	var gold_limit: int = mini(level.gold_heat_limit, heat_limit)
+	
+	if heat_total <= gold_limit:
+		return 3
+	
+	return 2

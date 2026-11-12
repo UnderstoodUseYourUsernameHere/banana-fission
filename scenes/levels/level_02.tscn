@@ -8,8 +8,9 @@
 script = ExtResource("1_vq1pa")
 title = "Moving Parts?"
 ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' ONE!"
-power_target = 8
-heat_limit = 10
+power_target = 7
+heat_limit = 8
+gold_heat_limit = 9
 
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
 position = Vector2(500, 300)

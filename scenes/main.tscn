@@ -58,6 +58,7 @@ offset_bottom = 44.0
 text = "RATTICUS' BANANILATOR"
 
 [node name="Help" type="Label" parent="HUD" unique_id=395654825]
+unique_name_in_owner = true
 offset_left = 40.0
 offset_top = 508.0
 offset_right = 600.0
