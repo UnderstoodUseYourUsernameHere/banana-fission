@@ -31,7 +31,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ignite"):
 		var world_position: Vector2 = get_global_mouse_position()
 		
-		if bounds.has_point(world_position):
+		if bounds.has_point(world_position) and not _point_in_rod(world_position):
 			get_viewport().set_input_as_handled()
 			ignited.emit(world_position)
 
@@ -45,6 +45,9 @@ func _draw() -> void:
 		return
 	
 	var centre: Vector2 = to_local(world_position)
+	var reticle_color: Color = Color(1.0, 1.0, 1.0, 0.55)
+	if _point_in_rod(world_position):
+		reticle_color = Color(1.0, 0.3, 0.3, 0.8)
 	
 	draw_arc(
 		centre,
@@ -52,7 +55,7 @@ func _draw() -> void:
 		0.0,
 		TAU,
 		64,
-		Color(1.0, 1.0, 1.0, 0.55),
+		reticle_color,
 		1.5,
 		true
 	)
@@ -110,4 +113,4 @@ func _point_in_rod(point: Vector2) -> bool:
 	for rect in rods:
 		if rect.has_point(point):
 			return true
-	return true
+	return false
