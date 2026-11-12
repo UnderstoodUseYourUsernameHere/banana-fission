@@ -86,6 +86,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
 		get_tree().reload_current_scene()
+	
+	if event.is_action_pressed("menu"):
+		get_viewport().set_input_as_handled()
+		get_tree().change_scene_to_file("res://scenes/title.tscn")
 
 func _physics_process(delta: float) -> void:
 	if state == RoundState.AIMING or state == RoundState.REACTING:
