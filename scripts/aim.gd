@@ -105,3 +105,9 @@ func _draw_motion_guide(banana: Banana) -> void:
 	draw_line(start, tip, guide_color, 1.5, true)
 	draw_line(tip, tip - direction.rotated(0.55) * 6.0, guide_color, 1.5, true)
 	draw_line(tip, tip - direction.rotated(-0.55) * 6.0, guide_color, 1.5, true)
+
+func _point_in_rod(point: Vector2) -> bool:
+	for rect in rods:
+		if rect.has_point(point):
+			return true
+	return true
