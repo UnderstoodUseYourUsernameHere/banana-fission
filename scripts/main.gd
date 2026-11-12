@@ -35,6 +35,7 @@ var state: RoundState = RoundState.AIMING
 var split_count: int = 0
 var active_pulses: Array[Pulse] = []
 var bananas: Array[Banana] = []
+var rods: Array[Rect2] = []
 var power_total: int = 0
 var heat_total: int = 0
 
@@ -42,7 +43,7 @@ func _ready() -> void:
 	_load_level()
 	
 	aim.ignited.connect(_on_ignited)
-	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS)
+	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS, rods)
 	
 	retry_button.pressed.connect(_restart_attempt)
 	continue_button.pressed.connect(_on_continue_pressed)
@@ -105,11 +106,18 @@ func _physics_process(delta: float) -> void:
 			continue
 		
 		for banana in bananas:
-			if banana.alive and pulse.reaches(banana.global_position, banana.hit_radius):
-				banana.split()
-				
-				if state != RoundState.REACTING:
-					return
+			if not banana.alive:
+				continue
+			
+			if not pulse.reaches(banana.global_position, banana.hit_radius):
+				continue
+			
+			if ControlRod.blocks_line(pulse.global_position, banana.global_position, rods):
+				continue
+			
+			banana.split()
+			if state != RoundState.REACTING:
+				return
 		
 	if active_pulses.is_empty():
 		_finish_round()
@@ -204,7 +212,15 @@ func _load_level() -> void:
 	heat_limit = level.heat_limit
 	intro.text = level.ratticus_line
 	
+	bananas.clear()
+	rods.clear()
+	
 	for child in level.get_children():
+		var rod := child as ControlRod
+		if rod != null:
+			rods.append(rod.world_rect())
+			continue
+		
 		var banana := child as Banana
 		if banana == null:
 			continue

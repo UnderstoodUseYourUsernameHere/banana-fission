@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ce30qcbfxosot"]
+
+[ext_resource type="Script" uid="uid://dbgg6rxslosjv" path="res://scripts/control_rod.gd" id="1_l0vag"]
+
+[node name="ControlRod" type="Node2D" unique_id=1333219731]
+script = ExtResource("1_l0vag")

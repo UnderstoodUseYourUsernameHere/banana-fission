@@ -5,6 +5,7 @@ signal ignited(world_position: Vector2)
 
 var bounds: Rect2 = Rect2()
 var targets: Array[Banana] = []
+var rods: Array[Rect2] = []
 var ignition_radius: float = 0.0
 
 var active: bool = false:
@@ -12,10 +13,11 @@ var active: bool = false:
 		active = value
 		queue_redraw()
 
-func configure(chamber_bounds: Rect2, bananas: Array[Banana], pulse_radius: float) -> void:
+func configure(chamber_bounds: Rect2, bananas: Array[Banana], pulse_radius: float, rod_rects: Array[Rect2]) -> void:
 	bounds = chamber_bounds
 	targets = bananas
 	ignition_radius = pulse_radius
+	rods = rod_rects
 	active = true
 
 func _process(_delta: float) -> void:
@@ -75,7 +77,10 @@ func _draw() -> void:
 		
 		var reach: float = ignition_radius + banana.hit_radius
 		
-		if world_position.distance_squared_to(banana.global_position) <= reach * reach:
+		var in_range: bool = (world_position.distance_squared_to(banana.global_position)) <= reach * reach
+		var blocked: bool = ControlRod.blocks_line(world_position, banana.global_position, rods)
+		
+		if in_range and not blocked:
 			draw_arc(
 				to_local(banana.global_position),
 				banana.hit_radius + 5.0,
@@ -89,7 +94,6 @@ func _draw() -> void:
 
 func _draw_motion_guide(banana: Banana) -> void:
 	var drift: Vector2 = banana.get_drift_velocity()
-	
 	if drift.length_squared() < 0.001:
 		return
 	

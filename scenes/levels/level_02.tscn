@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_vq1pa"]
 [ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_c5o3r"]
+[ext_resource type="PackedScene" uid="uid://ce30qcbfxosot" path="res://scenes/control_rod.tscn" id="3_c5o3r"]
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_vq1pa")
@@ -13,15 +14,18 @@ heat_limit = 10
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
 position = Vector2(500, 300)
 kind = 1
-reaction_radius = 108.0
+reaction_radius = 160.0
 power_yield = 3
-heat_yield = 6
+heat_yield = 4
 drift_speed = 14.0
 start_angle_degrees = 22.0
 
 [node name="Banana2" parent="." unique_id=71259297 instance=ExtResource("2_c5o3r")]
 position = Vector2(488, 199)
 kind = 1
+reaction_radius = 160.0
+power_yield = 3
+heat_yield = 4
 drift_speed = 100.0
 start_angle_degrees = 65.0
 
@@ -49,3 +53,7 @@ start_angle_degrees = 215.0
 position = Vector2(365, 405)
 drift_speed = 60.0
 start_angle_degrees = 360.0
+
+[node name="ControlRod" parent="." unique_id=1333219731 instance=ExtResource("3_c5o3r")]
+position = Vector2(480, 290)
+size = Vector2(16, 340)
