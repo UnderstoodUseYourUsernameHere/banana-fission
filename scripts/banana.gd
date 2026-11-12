@@ -35,6 +35,8 @@ var _velocity: Vector2 = Vector2.ZERO
 @export var half_texture: Texture2D
 
 func _ready() -> void:
+	_apply_kind()
+	
 	if Engine.is_editor_hint():
 		return
 	
@@ -100,6 +102,10 @@ func _apply_kind() -> void:
 		Kind.NORMAL:
 			power_yield = 1
 			heat_yield = 1
+			reaction_radius = 90.0
+		Kind.OVERRIPE:
+			power_yield = 3
+			heat_yield = 4
 			reaction_radius = 160.0
 
 func pulse_color() -> Color:

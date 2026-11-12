@@ -79,7 +79,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_restart_attempt()
 		return
 	
-	if event.is_action_pressed("continue"):
+	if event.is_action_pressed("next_level"):
 		get_viewport().set_input_as_handled()
 		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
 		get_tree().reload_current_scene()
