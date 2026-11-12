@@ -91,7 +91,7 @@ func _physics_process(delta: float) -> void:
 		var chamber_bounds: Rect2 = chamber.get_global_rect()
 		
 		for banana in bananas:
-			banana.advance_motion(delta, chamber_bounds)
+			banana.advance_motion(delta, chamber_bounds, rods)
 	
 	if state != RoundState.REACTING:
 		return

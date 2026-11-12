@@ -70,13 +70,38 @@ func split() -> void:
 	hide()
 	split_occurred.emit(self)
 
-func advance_motion(delta: float, chamber_bounds: Rect2) -> void:
+func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> void:
 	if not alive:
 		return
 	
 	var next_position: Vector2 = global_position + _velocity * delta
 	var minimum: Vector2 = chamber_bounds.position + Vector2.ONE * hit_radius
 	var maximum: Vector2 = chamber_bounds.end - Vector2.ONE * hit_radius
+	
+	for rect in rods:
+		var padded: Rect2 = rect.grow(hit_radius)
+		
+		if not padded.has_point(next_position):
+			continue
+		
+		var to_left: float = next_position.x - padded.position.x
+		var to_right: float = padded.end.x - next_position.x
+		var to_top: float = next_position.y - padded.position.y
+		var to_bottom: float = padded.end.y- next_position.y
+		var smallest: float = minf(minf(to_left, to_right), minf(to_top, to_bottom))
+		
+		if smallest == to_left:
+			next_position.x = padded.position.x
+			_velocity.x = -absf(_velocity.x)
+		elif smallest == to_right:
+			next_position.x = padded.end.x
+			_velocity.x = absf(_velocity.x)
+		elif smallest == to_top:
+			next_position.y = padded.position.y
+			_velocity.y = -absf(_velocity.y)
+		else:
+			next_position.y = padded.end.y
+			_velocity.y = absf(_velocity.y)
 	
 	if next_position.x < minimum.x:
 		next_position.x = minimum.x
