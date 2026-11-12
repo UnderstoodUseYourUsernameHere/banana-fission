@@ -55,6 +55,7 @@ func _on_ignited(world_position: Vector2) -> void:
 	if state != RoundState.AIMING:
 		return
 	
+	Progress.record_attempt()
 	state = RoundState.REACTING
 	aim.active = false
 	intro.visible = false
@@ -145,6 +146,8 @@ func _finish_round() -> void:
 		
 	active_pulses.clear()
 	continue_button.visible = _won()
+	if _won():
+		Progress.record_clear()
 	_update_status()
 
 func _update_status() -> void:
@@ -152,7 +155,7 @@ func _update_status() -> void:
 	
 	match state:
 		RoundState.AIMING:
-			status.text = "%s  |  1 shot  |  %d bananas" % [level.title, bananas.size()]
+			status.text = "%s  |  attempt %d  |  %d bananas" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size()]
 		RoundState.REACTING:
 			status.text = "Bananas splitting... %d / %d split" % [split_count, bananas.size()]
 		RoundState.COMPLETE:
