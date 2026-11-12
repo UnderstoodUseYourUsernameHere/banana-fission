@@ -31,6 +31,7 @@ var heat_limit: int = 7
 @onready var effect_container: Node2D = $%Effects
 @onready var retry_button: Button = $%Retry
 @onready var continue_button: Button = $%Continue
+@onready var scram_button: Button = $%Scram
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -39,6 +40,7 @@ var bananas: Array[Banana] = []
 var rods: Array[Rect2] = []
 var power_total: int = 0
 var heat_total: int = 0
+var scram_used: bool = false
 
 func _ready() -> void:
 	_load_level()
@@ -48,6 +50,8 @@ func _ready() -> void:
 	
 	retry_button.pressed.connect(_restart_attempt)
 	continue_button.pressed.connect(_on_continue_pressed)
+	scram_button.pressed.connect(_use_scram)
+	scram_button.visible = false
 	_update_status()
 	print("Bananilator ready!")
 
@@ -80,6 +84,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart"):
 		get_viewport().set_input_as_handled()
 		_restart_attempt()
+		return
+	
+	if event.is_action_pressed("scram"):
+		get_viewport().set_input_as_handled()
+		_use_scram()
 		return
 	
 	if event.is_action_pressed("next_level"):
@@ -138,6 +147,18 @@ func _spawn_pulse(world_position: Vector2, maximum_radius: float, ring_color: Co
 	
 	active_pulses.append(pulse)
 
+func _use_scram() -> void:
+	if state != RoundState.REACTING or scram_used:
+		return
+	
+	scram_used = true
+	
+	for pulse in active_pulses:
+		pulse.queue_free()
+	
+	active_pulses.clear()
+	_finish_round()
+
 func _finish_round() -> void:
 	if state == RoundState.COMPLETE:
 		return
@@ -156,19 +177,22 @@ func _finish_round() -> void:
 
 func _update_status() -> void:
 	_update_readouts()
+	scram_button.visible = (state == RoundState.REACTING and not scram_used)
+	var scram_prefix: String = "SCRAMMED - " if scram_used else ""
 	
 	match state:
 		RoundState.AIMING:
 			status.text = "%s  |  attempt %d  |  %d bananas" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size()]
 		RoundState.REACTING:
-			status.text = "Bananas splitting... %d / %d split" % [split_count, bananas.size()]
+			var scram_hint: String = ("  |  Space: SCRAM" if not scram_used else "  |  SCRAMMED")
+			status.text = "Bananas splitting... %d / %d split%s" % [split_count, bananas.size(), scram_hint]
 		RoundState.COMPLETE:
 			if heat_total > heat_limit:
 				status.text = "OVERHEATED! Heat %d / %d  |  R to retry!" % [heat_total, heat_limit]
 			elif power_total >= power_target:
-				status.text = "STABLE! Power %d  |  Heat %d  | R to retry!" % [power_total, heat_total]
+				status.text = "%sSTABLE! Power %d  |  Heat %d  | R to retry!" % [scram_prefix, power_total, heat_total]
 			else:
-				status.text = "NOT ENOUGH POWER: %d / %d  |  R to retry?" % [power_total, power_target] 
+				status.text = "%sNOT ENOUGH POWER: %d / %d  |  R to retry?" % [scram_prefix, power_total, power_target] 
 
 func _update_readouts() -> void:
 	power_label.text = "Power: %d / %d" % [power_total, power_target]

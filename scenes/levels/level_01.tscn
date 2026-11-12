@@ -7,6 +7,8 @@
 script = ExtResource("1_i2aat")
 title = "First Split"
 ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
+power_target = 3
+heat_limit = 4
 
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_2djvx")]
 position = Vector2(500, 300)
@@ -16,6 +18,9 @@ start_angle_degrees = 22.0
 [node name="Banana2" parent="." unique_id=71259297 instance=ExtResource("2_2djvx")]
 position = Vector2(488, 199)
 kind = 1
+reaction_radius = 160.0
+power_yield = 3
+heat_yield = 4
 drift_speed = 100.0
 start_angle_degrees = 65.0
 
