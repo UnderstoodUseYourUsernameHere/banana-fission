@@ -5,6 +5,7 @@ const SPLIT_BURST_SCENE = preload("res://scenes/split_burst.tscn")
 const BANANA_HALF_SCENE = preload("res://scenes/banana_half.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
+const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
 
 enum RoundState {
 	AIMING,
@@ -57,7 +58,7 @@ func _on_ignited(world_position: Vector2) -> void:
 	state = RoundState.REACTING
 	aim.active = false
 	intro.visible = false
-	_spawn_pulse(world_position, IGNITION_RADIUS)
+	_spawn_pulse(world_position, IGNITION_RADIUS, IGNITION_COLOR)
 	_update_status()
 
 func _on_banana_split(banana: Banana) -> void:
