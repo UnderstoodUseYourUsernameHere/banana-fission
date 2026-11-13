@@ -70,16 +70,22 @@ func split() -> void:
 	hide()
 	split_occurred.emit(self)
 
-func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> void:
-	if not alive:
-		return
+static func step_motion(
+	position_now: Vector2,
+	velocity_now: Vector2,
+	radius: float,
+	delta: float,
+	chamber_bounds: Rect2,
+	rods: Array[Rect2]
+) -> PackedVector2Array:
+	var next_position: Vector2 = position_now + velocity_now * delta
+	var velocity: Vector2 = velocity_now
 	
-	var next_position: Vector2 = global_position + _velocity * delta
-	var minimum: Vector2 = chamber_bounds.position + Vector2.ONE * hit_radius
-	var maximum: Vector2 = chamber_bounds.end - Vector2.ONE * hit_radius
+	var minimum: Vector2 = chamber_bounds.position + Vector2.ONE * radius
+	var maximum: Vector2 = chamber_bounds.end - Vector2.ONE * radius
 	
 	for rect in rods:
-		var padded: Rect2 = rect.grow(hit_radius)
+		var padded: Rect2 = rect.grow(radius)
 		
 		if not padded.has_point(next_position):
 			continue
@@ -87,37 +93,56 @@ func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> 
 		var to_left: float = next_position.x - padded.position.x
 		var to_right: float = padded.end.x - next_position.x
 		var to_top: float = next_position.y - padded.position.y
-		var to_bottom: float = padded.end.y- next_position.y
-		var smallest: float = minf(minf(to_left, to_right), minf(to_top, to_bottom))
+		var to_bottom: float = padded.end.y - next_position.y
+		var smallest: float = minf(
+			minf(to_left, to_right),
+			minf(to_top, to_bottom)
+		)
 		
 		if smallest == to_left:
 			next_position.x = padded.position.x
-			_velocity.x = -absf(_velocity.x)
+			velocity.x = -absf(velocity.x)
 		elif smallest == to_right:
 			next_position.x = padded.end.x
-			_velocity.x = absf(_velocity.x)
+			velocity.x = absf(velocity.x)
 		elif smallest == to_top:
 			next_position.y = padded.position.y
-			_velocity.y = -absf(_velocity.y)
+			velocity.y = -absf(velocity.y)
 		else:
 			next_position.y = padded.end.y
-			_velocity.y = absf(_velocity.y)
+			velocity.y = absf(velocity.y)
 	
 	if next_position.x < minimum.x:
 		next_position.x = minimum.x
-		_velocity.x = absf(_velocity.x)
+		velocity.x = absf(velocity.x)
 	elif next_position.x > maximum.x:
 		next_position.x = maximum.x
-		_velocity.x = -absf(_velocity.x)
+		velocity.x = -absf(velocity.x)
 	
 	if next_position.y < minimum.y:
 		next_position.y = minimum.y
-		_velocity.y = absf(_velocity.y)
+		velocity.y = absf(velocity.y)
 	elif next_position.y > maximum.y:
 		next_position.y = maximum.y
-		_velocity.y = -absf(_velocity.y)
+		velocity.y = -absf(velocity.y)
 	
-	global_position = next_position
+	return PackedVector2Array([next_position, velocity])
+
+func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> void:
+	if not alive:
+		return
+	
+	var stepped: PackedVector2Array = Banana.step_motion(
+		global_position,
+		_velocity,
+		hit_radius,
+		delta,
+		chamber_bounds,
+		rods
+	)
+	
+	global_position = stepped[0]
+	_velocity = stepped[1]
 
 func get_drift_velocity() -> Vector2:
 	return _velocity

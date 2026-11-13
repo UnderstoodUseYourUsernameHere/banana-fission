@@ -9,9 +9,16 @@ var radius: float = 0.0
 var age: float = 0.0
 var ring_color: Color = Color(0.4, 0.95, 1.0)
 
+static func radius_at(
+	age_now: float,
+	maximum: float,
+	expansion: float
+) -> float:
+	return maximum * clampf(age_now / expansion, 0.0, 1.0)
+
 func advance(delta: float) -> void:
 	age += delta
-	radius = max_radius * clampf(age / expansion_time, 0.0, 1.0)
+	radius = Pulse.radius_at(age, max_radius, expansion_time)
 	queue_redraw()
 
 func has_finished() -> bool:
