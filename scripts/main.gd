@@ -56,7 +56,7 @@ func _ready() -> void:
 	continue_button.pressed.connect(_on_continue_pressed)
 	scram_button.pressed.connect(_use_scram)
 	scram_button.visible = false
-	help_label.text = "LMB: Ignite  |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
+	help_label.text = "LMB: Ignite  |  R: Retry  |  G: New layout  |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
 	_update_status()
 	print("Bananilator ready!")
 
@@ -94,6 +94,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("scram"):
 		get_viewport().set_input_as_handled()
 		_use_scram()
+		return
+	
+	if event.is_action_pressed("new_layout"):
+		get_viewport().set_input_as_handled()
+		Progress.attempt_seed = 0
+		get_tree().reload_current_scene()
 		return
 	
 	if event.is_action_pressed("next_level"):
@@ -189,7 +195,7 @@ func _update_status() -> void:
 	
 	match state:
 		RoundState.AIMING:
-			status.text = "%s  |  attempt %d  |  %d bananas" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size()]
+			status.text = "%s  |  attempt %d  |  %d bananas  |  seed %d" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size(), Progress.attempt_seed]
 		RoundState.REACTING:
 			var scram_hint: String = ("  |  Space: SCRAM" if not scram_used else "  |  SCRAMMED")
 			status.text = "Bananas splitting... %d / %d split%s" % [split_count, bananas.size(), scram_hint]
