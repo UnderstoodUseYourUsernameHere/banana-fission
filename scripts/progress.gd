@@ -4,6 +4,7 @@ const SAVE_PATH := "user://progress.cfg"
 
 var levels: Array[PackedScene] = [preload("res://scenes/levels/level_01.tscn"), preload("res://scenes/levels/level_02.tscn")]
 var current_level: int = 0
+var attempt_seed: int = 0
 var highest_cleared: int = -1
 var attempts: Dictionary = {}
 var best_stars: Dictionary = {}

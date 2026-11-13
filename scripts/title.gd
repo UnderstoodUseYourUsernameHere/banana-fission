@@ -32,6 +32,7 @@ func _on_start() -> void:
 
 func _play_level(index: int) -> void:
 	Progress.current_level = index
+	Progress.attempt_seed = 0
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 func _on_reset() -> void:

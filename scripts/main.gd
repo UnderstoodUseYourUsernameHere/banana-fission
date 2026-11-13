@@ -3,6 +3,7 @@ extends Node2D
 const PULSE_SCENE = preload("res://scenes/pulse.tscn")
 const SPLIT_BURST_SCENE = preload("res://scenes/split_burst.tscn")
 const BANANA_HALF_SCENE = preload("res://scenes/banana_half.tscn")
+const BANANA_SCENE = preload("res://scenes/banana.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
@@ -38,6 +39,7 @@ var state: RoundState = RoundState.AIMING
 var split_count: int = 0
 var active_pulses: Array[Pulse] = []
 var bananas: Array[Banana] = []
+var generated: Array[Banana] = []
 var rods: Array[Rect2] = []
 var power_total: int = 0
 var heat_total: int = 0
@@ -97,6 +99,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("next_level"):
 		get_viewport().set_input_as_handled()
 		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
+		Progress.attempt_seed = 0
 		get_tree().reload_current_scene()
 	
 	if event.is_action_pressed("menu"):
@@ -243,6 +246,8 @@ func _load_level() -> void:
 	
 	level = Progress.levels[index].instantiate() as Level
 	level_holder.add_child(level)
+	if Progress.attempt_seed == 0:
+		Progress.attempt_seed = level.fixed_seed if level.fixed_seed != 0 else randi_range(1, 2147483647)
 	
 	power_target = level.power_target
 	heat_limit = level.heat_limit
@@ -262,11 +267,40 @@ func _load_level() -> void:
 			continue
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
+	_generate_bananas(Progress.attempt_seed)
+
+func _generate_bananas(seed_value: int) -> void:
+	if level.spawn_rules.is_empty():
+		return
+	
+	var existing: Array[Vector2] = []
+	for banana in bananas:
+		existing.append(banana.global_position)
+	
+	var specs: Array[Dictionary] = LevelGenerator.generate(level.spawn_rules, chamber.get_global_rect(), rods, existing, seed_value)
+	for spec in specs:
+		var banana := BANANA_SCENE.instantiate() as Banana
+		banana.kind = spec["kind"]
+		banana.drift_speed = spec["speed"]
+		banana.start_angle_degrees = spec["angle"]
+		level.add_child(banana)
+		banana.global_position = spec["position"]
+		bananas.append(banana)
+		generated.append(banana)
+		banana.split_occurred.connect(_on_banana_split)
+
+func _clear_generated() -> void:
+	for banana in generated:
+		bananas.erase(banana)
+		level.remove_child(banana)
+		banana.queue_free()
+	generated.clear()
 
 func _won() -> bool:
 	return heat_total <= heat_limit and power_total >= power_target
 
 func _on_continue_pressed() -> void:
+	Progress.attempt_seed = 0
 	if Progress.is_last_level():
 		Progress.current_level = 0
 	else:

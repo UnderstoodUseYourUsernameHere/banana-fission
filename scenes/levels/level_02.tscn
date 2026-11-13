@@ -1,8 +1,15 @@
 [gd_scene format=3 uid="uid://bomelqoasq4ti"]
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_vq1pa"]
-[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_c5o3r"]
+[ext_resource type="Script" uid="uid://bbbhkkqquiygk" path="res://scripts/spawn_rule.gd" id="2_3acmf"]
 [ext_resource type="PackedScene" uid="uid://ce30qcbfxosot" path="res://scenes/control_rod.tscn" id="3_c5o3r"]
+
+[sub_resource type="Resource" id="Resource_i2aat"]
+script = ExtResource("2_3acmf")
+count = 8
+speed_min = 62.0
+speed_max = 140.0
+metadata/_custom_type_script = "uid://bbbhkkqquiygk"
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_vq1pa")
@@ -11,45 +18,7 @@ ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' O
 power_target = 7
 heat_limit = 8
 gold_heat_limit = 9
-
-[node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
-position = Vector2(500, 300)
-kind = 1
-reaction_radius = 160.0
-power_yield = 3
-heat_yield = 4
-drift_speed = 45.0
-start_angle_degrees = 22.0
-
-[node name="Banana2" parent="." unique_id=71259297 instance=ExtResource("2_c5o3r")]
-position = Vector2(488, 199)
-drift_speed = 100.0
-start_angle_degrees = 65.0
-
-[node name="Banana3" parent="." unique_id=1745667669 instance=ExtResource("2_c5o3r")]
-position = Vector2(600, 150)
-drift_speed = 100.0
-start_angle_degrees = 65.0
-
-[node name="Banana4" parent="." unique_id=213498638 instance=ExtResource("2_c5o3r")]
-position = Vector2(660, 181)
-drift_speed = 30.0
-start_angle_degrees = 160.0
-
-[node name="Banana5" parent="." unique_id=1736657249 instance=ExtResource("2_c5o3r")]
-position = Vector2(589, 238)
-drift_speed = 24.0
-start_angle_degrees = 67.0
-
-[node name="Banana6" parent="." unique_id=248285369 instance=ExtResource("2_c5o3r")]
-position = Vector2(438, 375)
-drift_speed = 27.0
-start_angle_degrees = 215.0
-
-[node name="Banana7" parent="." unique_id=558535088 instance=ExtResource("2_c5o3r")]
-position = Vector2(365, 405)
-drift_speed = 60.0
-start_angle_degrees = 360.0
+spawn_rules = Array[ExtResource("2_3acmf")]([SubResource("Resource_i2aat")])
 
 [node name="ControlRod" parent="." unique_id=1333219731 instance=ExtResource("3_c5o3r")]
 position = Vector2(480, 290)

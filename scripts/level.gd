@@ -6,3 +6,7 @@ class_name Level
 @export_range(1, 100, 1) var power_target: int = 6
 @export_range(1, 100, 1) var heat_limit: int = 7
 @export_range(0, 100, 1) var gold_heat_limit: int = 6
+
+@export_group("Generation")
+@export var spawn_rules: Array[SpawnRule] = []
+@export var fixed_seed: int = 0

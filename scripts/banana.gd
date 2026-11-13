@@ -19,7 +19,7 @@ var _velocity: Vector2 = Vector2.ZERO
 @export_range(0, 20, 1) var heat_yield: int = 1
 
 @export_group("BananaMovement")
-@export_range(0.0, 100.0, 1.0) var drift_speed: float = 0.0
+@export_range(0.0, 200.0, 1.0) var drift_speed: float = 0.0
 @export_range(0.0, 360.0, 1.0) var start_angle_degrees: float = 0.0
 
 @export_range(4.0, 64.0, 1.0) var hit_radius: float = 18.0:
