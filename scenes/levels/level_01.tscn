@@ -8,8 +8,8 @@ script = ExtResource("1_i2aat")
 title = "First Split"
 ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
 power_target = 5
-heat_limit = 6
-gold_heat_limit = 7
+heat_limit = 10
+gold_heat_limit = 11
 
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_2djvx")]
 position = Vector2(500, 300)

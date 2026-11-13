@@ -11,12 +11,16 @@ func _ready() -> void:
 
 func _build_level_buttons() -> void:
 	for child in level_row.get_children():
+		level_row.remove_child(child)
 		child.queue_free()
 	
 	for index in range(Progress.level_count()):
 		var button := Button.new()
-		button.text = "Level %d" % (index + 1)
-		button.custom_minimum_size = Vector2(110.0, 40.0)
+		if Progress.is_unlocked(index):
+			button.text = "Level %d\nBest: %d/3" % [index + 1, Progress.stars_for(index)]
+		else:
+			button.text = "Level %d\nLOCKED" % (index + 1)
+		button.custom_minimum_size = Vector2(140.0, 64.0)
 		button.focus_mode = Control.FOCUS_NONE
 		button.disabled = not Progress.is_unlocked(index)
 		button.pressed.connect(_play_level.bind(index))

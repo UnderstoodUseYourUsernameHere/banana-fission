@@ -196,7 +196,7 @@ func _update_status() -> void:
 			elif _won():
 				status.text = "%sSTABLE! Rating %d/3  |  Power %d  |  Heat %d" % [scram_prefix, earned_stars, power_total, heat_total]
 			else:
-				status.text = "%sNOT ENOUGH POWER! Rating 0/3  |  Power %d  |  Heat %d  |  R to retry!" % [scram_prefix, power_total, power_target]
+				status.text = "%sNOT ENOUGH POWER! Rating 0/3  |  Power %d / %d  |  R to retry!" % [scram_prefix, power_total, power_target]
 
 func _update_readouts() -> void:
 	power_label.text = "Power: %d / %d" % [power_total, power_target]
