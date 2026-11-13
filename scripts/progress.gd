@@ -6,6 +6,7 @@ var levels: Array[PackedScene] = [preload("res://scenes/levels/level_01.tscn"), 
 var current_level: int = 0
 var highest_cleared: int = -1
 var attempts: Dictionary = {}
+var best_stars: Dictionary = {}
 
 func level_count() -> int:
 	return levels.size()
@@ -26,20 +27,29 @@ func record_attempt() -> void:
 	attempts[current_level] = attempts_for(current_level) + 1
 	save_progress()
 
-func record_clear() -> void:
+func record_clear(star_count: int) -> void:
+	var awarded: int = clampi(star_count, 0, 3)
+	if awarded == 0:
+		return
+	
 	highest_cleared = maxi(highest_cleared, current_level)
+	best_stars[current_level] = maxi(stars_for(current_level), awarded)
 	save_progress()
 
 func reset_all() -> void:
 	highest_cleared = -1
 	attempts.clear()
+	best_stars.clear()
 	save_progress()
 
 func save_progress() -> void:
 	var config := ConfigFile.new()
 	config.set_value("progress", "highest_cleared", highest_cleared)
 	config.set_value("progress", "attempts", attempts)
-	config.save(SAVE_PATH)
+	config.set_value("progress", "best_stars", best_stars)
+	var save_error: Error = config.save(SAVE_PATH)
+	if save_error != OK:
+		push_warning("Could not save progress: %s" % error_string(save_error))
 
 func load_progress() -> void:
 	var config := ConfigFile.new()
@@ -47,3 +57,8 @@ func load_progress() -> void:
 		return
 	highest_cleared = config.get_value("progress", "highest_cleared", -1)
 	attempts = config.get_value("progress", "attempts", {})
+	var loaded_stars: Variant = config.get_value("progress", "best_stars", {})
+	best_stars = loaded_stars if loaded_stars is Dictionary else {}
+
+func stars_for(index: int) -> int:
+	return clampi(int(best_stars.get(index, 0)), 0, 3)

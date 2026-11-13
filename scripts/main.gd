@@ -176,7 +176,7 @@ func _finish_round() -> void:
 	earned_stars = _calculate_stars()
 	continue_button.visible = _won()
 	if _won():
-		Progress.record_clear()
+		Progress.record_clear(earned_stars)
 	_update_status()
 
 func _update_status() -> void:
