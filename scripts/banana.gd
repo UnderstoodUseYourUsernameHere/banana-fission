@@ -76,41 +76,12 @@ static func step_motion(
 	radius: float,
 	delta: float,
 	chamber_bounds: Rect2,
-	rods: Array[Rect2]
 ) -> PackedVector2Array:
 	var next_position: Vector2 = position_now + velocity_now * delta
 	var velocity: Vector2 = velocity_now
 	
 	var minimum: Vector2 = chamber_bounds.position + Vector2.ONE * radius
 	var maximum: Vector2 = chamber_bounds.end - Vector2.ONE * radius
-	
-	for rect in rods:
-		var padded: Rect2 = rect.grow(radius)
-		
-		if not padded.has_point(next_position):
-			continue
-		
-		var to_left: float = next_position.x - padded.position.x
-		var to_right: float = padded.end.x - next_position.x
-		var to_top: float = next_position.y - padded.position.y
-		var to_bottom: float = padded.end.y - next_position.y
-		var smallest: float = minf(
-			minf(to_left, to_right),
-			minf(to_top, to_bottom)
-		)
-		
-		if smallest == to_left:
-			next_position.x = padded.position.x
-			velocity.x = -absf(velocity.x)
-		elif smallest == to_right:
-			next_position.x = padded.end.x
-			velocity.x = absf(velocity.x)
-		elif smallest == to_top:
-			next_position.y = padded.position.y
-			velocity.y = -absf(velocity.y)
-		else:
-			next_position.y = padded.end.y
-			velocity.y = absf(velocity.y)
 	
 	if next_position.x < minimum.x:
 		next_position.x = minimum.x
@@ -128,7 +99,7 @@ static func step_motion(
 	
 	return PackedVector2Array([next_position, velocity])
 
-func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> void:
+func advance_motion(delta: float, chamber_bounds: Rect2) -> void:
 	if not alive:
 		return
 	
@@ -138,7 +109,6 @@ func advance_motion(delta: float, chamber_bounds: Rect2, rods: Array[Rect2]) -> 
 		hit_radius,
 		delta,
 		chamber_bounds,
-		rods
 	)
 	
 	global_position = stepped[0]

@@ -5,7 +5,6 @@ signal ignited(world_position: Vector2)
 
 var bounds: Rect2 = Rect2()
 var targets: Array[Banana] = []
-var rods: Array[Rect2] = []
 var ignition_radius: float = 0.0
 
 var active: bool = false:
@@ -13,11 +12,10 @@ var active: bool = false:
 		active = value
 		queue_redraw()
 
-func configure(chamber_bounds: Rect2, bananas: Array[Banana], pulse_radius: float, rod_rects: Array[Rect2]) -> void:
+func configure(chamber_bounds: Rect2, bananas: Array[Banana], pulse_radius: float) -> void:
 	bounds = chamber_bounds
 	targets = bananas
 	ignition_radius = pulse_radius
-	rods = rod_rects
 	active = true
 
 func _process(_delta: float) -> void:
@@ -31,7 +29,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ignite"):
 		var world_position: Vector2 = get_global_mouse_position()
 		
-		if bounds.has_point(world_position) and not _point_in_rod(world_position):
+		if bounds.has_point(world_position):
 			get_viewport().set_input_as_handled()
 			ignited.emit(world_position)
 
@@ -46,8 +44,6 @@ func _draw() -> void:
 	
 	var centre: Vector2 = to_local(world_position)
 	var reticle_color: Color = Color(1.0, 1.0, 1.0, 0.55)
-	if _point_in_rod(world_position):
-		reticle_color = Color(1.0, 0.3, 0.3, 0.8)
 	
 	draw_arc(
 		centre,
@@ -80,10 +76,8 @@ func _draw() -> void:
 		
 		var reach: float = ignition_radius + banana.hit_radius
 		
-		var in_range: bool = (world_position.distance_squared_to(banana.global_position)) <= reach * reach
-		var blocked: bool = ControlRod.blocks_line(world_position, banana.global_position, rods)
-		
-		if in_range and not blocked:
+		var in_range: bool = (world_position.distance_squared_to(banana.global_position)) <= reach * reach		
+		if in_range:
 			draw_arc(
 				to_local(banana.global_position),
 				banana.hit_radius + 5.0,
@@ -108,9 +102,3 @@ func _draw_motion_guide(banana: Banana) -> void:
 	draw_line(start, tip, guide_color, 1.5, true)
 	draw_line(tip, tip - direction.rotated(0.55) * 6.0, guide_color, 1.5, true)
 	draw_line(tip, tip - direction.rotated(-0.55) * 6.0, guide_color, 1.5, true)
-
-func _point_in_rod(point: Vector2) -> bool:
-	for rect in rods:
-		if rect.has_point(point):
-			return true
-	return false

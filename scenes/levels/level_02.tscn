@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_vq1pa"]
 [ext_resource type="Script" uid="uid://bbbhkkqquiygk" path="res://scripts/spawn_rule.gd" id="2_3acmf"]
-[ext_resource type="PackedScene" uid="uid://ce30qcbfxosot" path="res://scenes/control_rod.tscn" id="3_c5o3r"]
+[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_c5o3r"]
 
 [sub_resource type="Resource" id="Resource_i2aat"]
 script = ExtResource("2_3acmf")
@@ -21,6 +21,14 @@ heat_limit = 8
 gold_heat_limit = 9
 spawn_rules = Array[ExtResource("2_3acmf")]([SubResource("Resource_i2aat")])
 
-[node name="ControlRod" parent="." unique_id=1333219731 instance=ExtResource("3_c5o3r")]
-position = Vector2(480, 290)
-size = Vector2(16, 340)
+[node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
+position = Vector2(345, 45)
+
+[node name="Banana2" parent="." unique_id=1889511718 instance=ExtResource("2_c5o3r")]
+position = Vector2(270, 246)
+
+[node name="Banana3" parent="." unique_id=1360865285 instance=ExtResource("2_c5o3r")]
+position = Vector2(477, 190)
+
+[node name="Banana4" parent="." unique_id=1442384144 instance=ExtResource("2_c5o3r")]
+position = Vector2(645, 131)

@@ -7,7 +7,6 @@ const BANANA_SCENE = preload("res://scenes/banana.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
-const MAX_SEED_TRIES: int = 15
 
 enum RoundState {
 	AIMING,
@@ -40,34 +39,27 @@ var state: RoundState = RoundState.AIMING
 var split_count: int = 0
 var active_pulses: Array[Pulse] = []
 var bananas: Array[Banana] = []
-var generated: Array[Banana] = []
-var rods: Array[Rect2] = []
 var power_total: int = 0
 var heat_total: int = 0
 var scram_used: bool = false
 var earned_stars: int = 0
 
-var validating_layout: bool = false
-var validation_search: ShotSearch
-var validation_seed: int = 0
-var validation_tries: int = 0
-var validation_generation_failed: bool = false
 var layout_ready: bool = false
 
 func _ready() -> void:
 	_load_level()
 	
 	aim.ignited.connect(_on_ignited)
-	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS, rods)
+	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS) 
+	aim.active = layout_ready
 	
 	retry_button.pressed.connect(_restart_attempt)
 	continue_button.pressed.connect(_on_continue_pressed)
 	scram_button.pressed.connect(_use_scram)
 	scram_button.visible = false
-	help_label.text = "LMB: Ignite  |  R: Retry  |  G: New layout  |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
+	help_label.text = "LMB: Ignite  |  R: Retry   |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
 	_update_status()
 	print("Bananilator ready!")
-	_generate_validated()
 
 func _on_ignited(world_position: Vector2) -> void:
 	if not layout_ready or state != RoundState.AIMING:
@@ -105,12 +97,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		_use_scram()
 		return
 	
-	if event.is_action_pressed("new_layout"):
-		get_viewport().set_input_as_handled()
-		Progress.attempt_seed = 0
-		get_tree().reload_current_scene()
-		return
-	
 	if event.is_action_pressed("next_level"):
 		get_viewport().set_input_as_handled()
 		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
@@ -122,14 +108,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/title.tscn")
 
 func _physics_process(delta: float) -> void:
-	if validating_layout:
-		return
 	
 	if state == RoundState.AIMING or state == RoundState.REACTING:
 		var chamber_bounds: Rect2 = chamber.get_global_rect()
 		
 		for banana in bananas:
-			banana.advance_motion(delta, chamber_bounds, rods)
+			banana.advance_motion(delta, chamber_bounds)
 	
 	if state != RoundState.REACTING:
 		return
@@ -151,66 +135,12 @@ func _physics_process(delta: float) -> void:
 			if not pulse.reaches(banana.global_position, banana.hit_radius):
 				continue
 			
-			if ControlRod.blocks_line(pulse.global_position, banana.global_position, rods):
-				continue
-			
 			banana.split()
 			if state != RoundState.REACTING:
 				return
 		
 	if active_pulses.is_empty():
 		_finish_round()
-
-func _process(delta: float) -> void:
-	if not validating_layout:
-		return
-	
-	if validation_generation_failed:
-		if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
-			push_warning("Generation failed and no seeds left after %d tries!" % validation_tries)
-			_finish_layout_validation(false)
-			return
-		validation_seed += 1
-		validation_tries += 1
-		Progress.attempt_seed = validation_seed
-		_start_validation_candidate()
-		return
-	
-	if validation_search == null:
-		return
-	
-	if not validation_search.step(1):
-		status.text = "CALIBRATING... Seed %d  |  Try %d/%d  |  %d chains" % [
-			validation_seed,
-			validation_tries,
-			MAX_SEED_TRIES,
-			validation_search.chains_run
-		]
-		return
-	
-	if validation_search.result.get("valid", false):
-		Progress.attempt_seed = validation_seed
-		var result: Dictionary = validation_search.result
-		
-		print("Seed %d OK: wait %.1fs, ignite near %s -> %d power / %d heat" % [
-			validation_seed,
-			result["wait"],
-			result["point"],
-			result["power"],
-			result["heat"]
-		])
-		_finish_layout_validation(true)
-		return
-	
-	if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
-		push_warning("No verified winning layout found after %d tries!" % validation_tries)
-		_finish_layout_validation(false)
-		return
-	
-	validation_seed += 1
-	validation_tries += 1
-	Progress.attempt_seed = validation_seed
-	_start_validation_candidate()
 
 func _spawn_pulse(world_position: Vector2, maximum_radius: float, ring_color: Color = Color(0.4, 0.95, 1.0)) -> void:
 	var pulse := PULSE_SCENE.instantiate() as Pulse
@@ -258,7 +188,7 @@ func _update_status() -> void:
 	
 	match state:
 		RoundState.AIMING:
-			status.text = "%s  |  attempt %d  |  %d bananas  |  seed %d" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size(), Progress.attempt_seed]
+			status.text = "%s  |  attempt %d  |  %d bananas" % [level.title, Progress.attempts_for(Progress.current_level) + 1, bananas.size()]
 		RoundState.REACTING:
 			var scram_hint: String = ("  |  Space: SCRAM" if not scram_used else "  |  SCRAMMED")
 			status.text = "Bananas splitting... %d / %d split%s" % [split_count, bananas.size(), scram_hint]
@@ -323,105 +253,15 @@ func _load_level() -> void:
 	intro.text = level.ratticus_line
 	
 	bananas.clear()
-	rods.clear()
 	
 	for child in level.get_children():
-		var rod := child as ControlRod
-		if rod != null:
-			rods.append(rod.world_rect())
-			continue
 		
 		var banana := child as Banana
 		if banana == null:
 			continue
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
-
-func _generate_bananas(seed_value: int) -> bool:
-	var expected: int = 0
-	for rule in level.spawn_rules:
-		if rule != null:
-			expected += rule.count
-	if expected == 0:
-		return true
-	
-	var existing: Array[Vector2] = []
-	for banana in bananas:
-		existing.append(banana.global_position)
-	
-	var specs: Array[Dictionary] = LevelGenerator.generate(level.spawn_rules, chamber.get_global_rect(), rods, existing, seed_value)
-	for spec in specs:
-		var banana := BANANA_SCENE.instantiate() as Banana
-		banana.kind = spec["kind"]
-		banana.drift_speed = spec["speed"]
-		banana.start_angle_degrees = spec["angle"]
-		level.add_child(banana)
-		banana.global_position = spec["position"]
-		bananas.append(banana)
-		generated.append(banana)
-		banana.split_occurred.connect(_on_banana_split)
-	return specs.size() == expected
-
-func _clear_generated() -> void:
-	for banana in generated:
-		bananas.erase(banana)
-		level.remove_child(banana)
-		banana.queue_free()
-	generated.clear()
-
-func _generate_validated() -> void:
-	var has_active_rule: bool = false
-	
-	for rule in level.spawn_rules:
-		if rule != null and rule.count > 0:
-			has_active_rule = true
-			break
-	
-	if not has_active_rule:
-		layout_ready = true
-		return
-	
-	layout_ready = false
-	validating_layout = true
-	aim.active = false
-	validation_seed = Progress.attempt_seed
-	validation_tries = 1
-	
-	_start_validation_candidate()
-	status.text = "CALIBRATING REACTOR..."
-
-func _start_validation_candidate() -> void:
-	_clear_generated()
-	validation_generation_failed = not _generate_bananas(validation_seed)
-	if validation_generation_failed:
-		validation_search = null
-		return
-	
-	var probe := PULSE_SCENE.instantiate() as Pulse
-	var expansion: float = probe.expansion_time
-	var fade: float = probe.fade_time
-	probe.free()
-	
-	validation_search = ShotSearch.new(
-		bananas,
-		chamber.get_global_rect(),
-		rods,
-		IGNITION_RADIUS,
-		expansion,
-		fade,
-		power_target,
-		heat_limit
-	)
-
-func _finish_layout_validation(accepted: bool) -> void:
-	validating_layout = false
-	validation_search = null
-	layout_ready = accepted
-	aim.active = accepted
-	if accepted:
-		_update_status()
-	else:
-		status.text = "LAYOUT UNAVAILABLE  |  G: try another layout  | Esc: menu"
+	layout_ready = true
 
 func _won() -> bool:
 	return heat_total <= heat_limit and power_total >= power_target
