@@ -51,6 +51,7 @@ var validating_layout: bool = false
 var validation_search: ShotSearch
 var validation_seed: int = 0
 var validation_tries: int = 0
+var validation_generation_failed: bool = false
 
 func _ready() -> void:
 	_load_level()
@@ -160,7 +161,21 @@ func _physics_process(delta: float) -> void:
 		_finish_round()
 
 func _process(delta: float) -> void:
-	if not validating_layout or validation_search == null:
+	if not validating_layout:
+		return
+	
+	if validation_generation_failed:
+		if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
+			push_warning("Generation failed and no seeds left after %d tries!" % validation_tries)
+			_finish_layout_validation()
+			return
+		validation_seed += 1
+		validation_tries += 1
+		Progress.attempt_seed = validation_seed
+		_start_validation_candidate()
+		return
+	
+	if validation_search == null:
 		return
 	
 	if not validation_search.step(1):
@@ -321,9 +336,13 @@ func _load_level() -> void:
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
 
-func _generate_bananas(seed_value: int) -> void:
-	if level.spawn_rules.is_empty():
-		return
+func _generate_bananas(seed_value: int) -> bool:
+	var expected: int = 0
+	for rule in level.spawn_rules:
+		if rule != null:
+			expected += rule.count
+	if expected == 0:
+		return true
 	
 	var existing: Array[Vector2] = []
 	for banana in bananas:
@@ -340,6 +359,7 @@ func _generate_bananas(seed_value: int) -> void:
 		bananas.append(banana)
 		generated.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
+	return specs.size() == expected
 
 func _clear_generated() -> void:
 	for banana in generated:
@@ -369,7 +389,10 @@ func _generate_validated() -> void:
 
 func _start_validation_candidate() -> void:
 	_clear_generated()
-	_generate_bananas(validation_seed)
+	validation_generation_failed = not _generate_bananas(validation_seed)
+	if validation_generation_failed:
+		validation_search = null
+		return
 	
 	var probe := PULSE_SCENE.instantiate() as Pulse
 	var expansion: float = probe.expansion_time
