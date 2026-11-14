@@ -119,7 +119,7 @@ static func run_chain(
 				heat += entry["heat"]
 				
 				if heat > heat_limit:
-					return {"power": power, "heat": heat}
+					return {"power": power, "heat": heat, "complete": true}
 				
 				spawned.append({
 					"pos": entry["pos"],
@@ -129,7 +129,7 @@ static func run_chain(
 		surviving.append_array(spawned)
 		pulses = surviving
 	
-	return {"power": power, "heat": heat}
+	return {"power": power, "heat": heat, "complete": pulses.is_empty()}
 
 static func find_winning_shot(
 	bananas: Array[Banana],

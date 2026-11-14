@@ -77,6 +77,13 @@ func step(chains_this_frame: int = 1) -> bool:
 		chains_run += 1
 		
 		var point: Vector2 = entry["pos"]
+		
+		if not _chamber.has_point(point):
+			continue
+		
+		if ControlRod.blocks_line(point, point, _rods):
+			continue
+		
 		var outcome: Dictionary = ReactionSim.run_chain(
 			_state,
 			point,
@@ -92,7 +99,7 @@ func step(chains_this_frame: int = 1) -> bool:
 		var power: int = int(outcome["power"])
 		var heat: int = int(outcome["heat"])
 		
-		if power >= _power_target and heat <= _heat_limit:
+		if (outcome.get("complete", false) and power >= _power_target and heat <= _heat_limit):
 			result = {
 				"valid": true,
 				"wait": float(_wait_ticks) * ReactionSim.TICK,

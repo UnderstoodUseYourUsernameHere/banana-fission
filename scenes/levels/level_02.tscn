@@ -7,8 +7,9 @@
 [sub_resource type="Resource" id="Resource_i2aat"]
 script = ExtResource("2_3acmf")
 count = 8
-speed_min = 62.0
-speed_max = 140.0
+speed_min = 49.0
+speed_max = 106.0
+min_spacing = 46.0
 metadata/_custom_type_script = "uid://bbbhkkqquiygk"
 
 [node name="Level" type="Node2D" unique_id=964198586]

@@ -52,6 +52,7 @@ var validation_search: ShotSearch
 var validation_seed: int = 0
 var validation_tries: int = 0
 var validation_generation_failed: bool = false
+var layout_ready: bool = false
 
 func _ready() -> void:
 	_load_level()
@@ -69,7 +70,7 @@ func _ready() -> void:
 	_generate_validated()
 
 func _on_ignited(world_position: Vector2) -> void:
-	if state != RoundState.AIMING:
+	if not layout_ready or state != RoundState.AIMING:
 		return
 	
 	Progress.record_attempt()
@@ -167,7 +168,7 @@ func _process(delta: float) -> void:
 	if validation_generation_failed:
 		if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
 			push_warning("Generation failed and no seeds left after %d tries!" % validation_tries)
-			_finish_layout_validation()
+			_finish_layout_validation(false)
 			return
 		validation_seed += 1
 		validation_tries += 1
@@ -198,12 +199,12 @@ func _process(delta: float) -> void:
 			result["power"],
 			result["heat"]
 		])
-		_finish_layout_validation()
+		_finish_layout_validation(true)
 		return
 	
 	if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
 		push_warning("No verified winning layout found after %d tries!" % validation_tries)
-		_finish_layout_validation()
+		_finish_layout_validation(false)
 		return
 	
 	validation_seed += 1
@@ -377,8 +378,10 @@ func _generate_validated() -> void:
 			break
 	
 	if not has_active_rule:
+		layout_ready = true
 		return
 	
+	layout_ready = false
 	validating_layout = true
 	aim.active = false
 	validation_seed = Progress.attempt_seed
@@ -410,11 +413,15 @@ func _start_validation_candidate() -> void:
 		heat_limit
 	)
 
-func _finish_layout_validation() -> void:
+func _finish_layout_validation(accepted: bool) -> void:
 	validating_layout = false
 	validation_search = null
-	aim.active = true
-	_update_status()
+	layout_ready = accepted
+	aim.active = accepted
+	if accepted:
+		_update_status()
+	else:
+		status.text = "LAYOUT UNAVAILABLE  |  G: try another layout  | Esc: menu"
 
 func _won() -> bool:
 	return heat_total <= heat_limit and power_total >= power_target
