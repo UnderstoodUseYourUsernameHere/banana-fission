@@ -7,6 +7,7 @@ const BANANA_SCENE = preload("res://scenes/banana.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
+const MAX_SEED_TRIES: int = 15
 
 enum RoundState {
 	AIMING,
@@ -46,6 +47,11 @@ var heat_total: int = 0
 var scram_used: bool = false
 var earned_stars: int = 0
 
+var validating_layout: bool = false
+var validation_search: ShotSearch
+var validation_seed: int = 0
+var validation_tries: int = 0
+
 func _ready() -> void:
 	_load_level()
 	
@@ -59,6 +65,7 @@ func _ready() -> void:
 	help_label.text = "LMB: Ignite  |  R: Retry  |  G: New layout  |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
 	_update_status()
 	print("Bananilator ready!")
+	_generate_validated()
 
 func _on_ignited(world_position: Vector2) -> void:
 	if state != RoundState.AIMING:
@@ -113,6 +120,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/title.tscn")
 
 func _physics_process(delta: float) -> void:
+	if validating_layout:
+		return
+	
 	if state == RoundState.AIMING or state == RoundState.REACTING:
 		var chamber_bounds: Rect2 = chamber.get_global_rect()
 		
@@ -148,6 +158,43 @@ func _physics_process(delta: float) -> void:
 		
 	if active_pulses.is_empty():
 		_finish_round()
+
+func _process(delta: float) -> void:
+	if not validating_layout or validation_search == null:
+		return
+	
+	if not validation_search.step(1):
+		status.text = "CALIBRATING... Seed %d  |  Try %d/%d  |  %d chains" % [
+			validation_seed,
+			validation_tries,
+			MAX_SEED_TRIES,
+			validation_search.chains_run
+		]
+		return
+	
+	if validation_search.result.get("valid", false):
+		Progress.attempt_seed = validation_seed
+		var result: Dictionary = validation_search.result
+		
+		print("Seed %d OK: wait %.1fs, ignite near %s -> %d power / %d heat" % [
+			validation_seed,
+			result["wait"],
+			result["point"],
+			result["power"],
+			result["heat"]
+		])
+		_finish_layout_validation()
+		return
+	
+	if level.fixed_seed != 0 or validation_tries >= MAX_SEED_TRIES:
+		push_warning("No verified winning layout found after %d tries!" % validation_tries)
+		_finish_layout_validation()
+		return
+	
+	validation_seed += 1
+	validation_tries += 1
+	Progress.attempt_seed = validation_seed
+	_start_validation_candidate()
 
 func _spawn_pulse(world_position: Vector2, maximum_radius: float, ring_color: Color = Color(0.4, 0.95, 1.0)) -> void:
 	var pulse := PULSE_SCENE.instantiate() as Pulse
@@ -273,7 +320,6 @@ func _load_level() -> void:
 			continue
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
-	_generate_bananas(Progress.attempt_seed)
 
 func _generate_bananas(seed_value: int) -> void:
 	if level.spawn_rules.is_empty():
@@ -301,6 +347,51 @@ func _clear_generated() -> void:
 		level.remove_child(banana)
 		banana.queue_free()
 	generated.clear()
+
+func _generate_validated() -> void:
+	var has_active_rule: bool = false
+	
+	for rule in level.spawn_rules:
+		if rule != null and rule.count > 0:
+			has_active_rule = true
+			break
+	
+	if not has_active_rule:
+		return
+	
+	validating_layout = true
+	aim.active = false
+	validation_seed = Progress.attempt_seed
+	validation_tries = 1
+	
+	_start_validation_candidate()
+	status.text = "CALIBRATING REACTOR..."
+
+func _start_validation_candidate() -> void:
+	_clear_generated()
+	_generate_bananas(validation_seed)
+	
+	var probe := PULSE_SCENE.instantiate() as Pulse
+	var expansion: float = probe.expansion_time
+	var fade: float = probe.fade_time
+	probe.free()
+	
+	validation_search = ShotSearch.new(
+		bananas,
+		chamber.get_global_rect(),
+		rods,
+		IGNITION_RADIUS,
+		expansion,
+		fade,
+		power_target,
+		heat_limit
+	)
+
+func _finish_layout_validation() -> void:
+	validating_layout = false
+	validation_search = null
+	aim.active = true
+	_update_status()
 
 func _won() -> bool:
 	return heat_total <= heat_limit and power_total >= power_target
