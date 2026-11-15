@@ -38,7 +38,8 @@ var heat_limit: int = 7
 @onready var continue_button: Button = $%Continue
 @onready var scram_button: Button = $%Scram
 @onready var help_label: Label = $%Help
-@onready var Camera: Camera2D = $%Camera
+@onready var camera: Camera2D = $%Camera
+@onready var flash: ColorRect = $%Flash
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -49,6 +50,7 @@ var heat_total: int = 0
 var scram_used: bool = false
 var earned_stars: int = 0
 var shake_strength: float = 0.0
+var heat_danger: bool = false
 
 var layout_ready: bool = false
 var layout_error: String = ""
@@ -82,6 +84,7 @@ func _on_ignited(world_position: Vector2) -> void:
 func _on_banana_split(banana: Banana) -> void:
 	split_count += 1
 	_add_shake(OVERRIPE_SHAKE if banana.kind == Banana.Kind.OVERRIPE else SPLIT_SHAKE)
+	_flash(Color("ff3020"), 0.45, 0.4)
 	_spawn_split_burst(banana.global_position)
 	_spawn_split_halves(banana)
 	power_total += banana.power_yield
@@ -124,6 +127,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	_update_shake(delta)
+	if heat_danger and state == RoundState.REACTING:
+		var throb: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.02)
+		heat_bar.modulate = Color.WHITE.lerp(Color("ff5a4a"), throb)
+	else:
+		heat_bar.modulate = Color.WHITE
 
 func _physics_process(delta: float) -> void:
 	if not layout_ready:
@@ -236,6 +244,14 @@ func _update_readouts() -> void:
 	
 	heat_bar.max_value = heat_limit
 	heat_bar.value = heat_total
+	heat_danger = heat_total > 0 and heat_limit - heat_total <= 1
+	
+	if heat_total > heat_limit:
+		heat_label.modulate = Color("ff5a4a")
+	elif heat_danger:
+		heat_label.modulate = Color("ffb347")
+	else:
+		heat_label.modulate = Color.WHITE
 
 func _spawn_split_burst(world_position: Vector2) -> void:
 	var burst: Node2D = SPLIT_BURST_SCENE.instantiate()
@@ -379,8 +395,13 @@ func _add_shake(amount: float) -> void:
 
 func _update_shake(delta: float) -> void:
 	if shake_strength <= 0.0:
-		Camera.offset = Vector2.ZERO
+		camera.offset = Vector2.ZERO
 		return
 	
-	Camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * shake_strength
+	camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * shake_strength
 	shake_strength = move_toward(shake_strength, 0.0, SHAKE_DECAY * delta)
+
+func _flash(color: Color, strength: float, duration: float) -> void:
+	flash.color = Color(color, strength)
+	var tween := create_tween()
+	tween.tween_property(flash, "color:a", 0.0, duration)
