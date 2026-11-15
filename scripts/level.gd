@@ -10,3 +10,7 @@ class_name Level
 @export_group("Generation")
 @export var spawn_rules: Array[SpawnRule] = []
 @export var fixed_seed: int = 0
+
+@export_group("Controlled Generation")
+@export var formations: Array[FormationRule] = []
+@export var require_selection_formation: bool = true
