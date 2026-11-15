@@ -45,6 +45,7 @@ var scram_used: bool = false
 var earned_stars: int = 0
 
 var layout_ready: bool = false
+var layout_error: String = ""
 
 func _ready() -> void:
 	_load_level()
@@ -57,7 +58,7 @@ func _ready() -> void:
 	continue_button.pressed.connect(_on_continue_pressed)
 	scram_button.pressed.connect(_use_scram)
 	scram_button.visible = false
-	help_label.text = "LMB: Ignite  |  R: Retry   |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
+	help_label.text = "LMB: Ignite  |  R: Retry  |  G: New Variation   |  Gold: Finish at or under %d heat, no SCRAM" % mini(level.gold_heat_limit, heat_limit)
 	_update_status()
 	print("Bananilator ready!")
 
@@ -97,6 +98,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_use_scram()
 		return
 	
+	if event.is_action_pressed("new_layout"):
+		get_viewport().set_input_as_handled()
+		Progress.attempt_seed = 0
+		get_tree().reload_current_scene()
+		return
+	
 	if event.is_action_pressed("next_level"):
 		get_viewport().set_input_as_handled()
 		Progress.current_level = (Progress.current_level + 1) % Progress.level_count()
@@ -108,6 +115,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_tree().change_scene_to_file("res://scenes/title.tscn")
 
 func _physics_process(delta: float) -> void:
+	if not layout_ready:
+		return
 	
 	if state == RoundState.AIMING or state == RoundState.REACTING:
 		var chamber_bounds: Rect2 = chamber.get_global_rect()
@@ -183,6 +192,13 @@ func _finish_round() -> void:
 
 func _update_status() -> void:
 	_update_readouts()
+	
+	if not layout_ready:
+		status.text = "FORMATION ERROR  |  See Output  |  Esc: menu"
+		continue_button.visible = false
+		scram_button.visible = false
+		return
+	
 	scram_button.visible = (state == RoundState.REACTING and not scram_used)
 	var scram_prefix: String = "SCRAMMED - " if scram_used else ""
 	
@@ -261,7 +277,66 @@ func _load_level() -> void:
 			continue
 		bananas.append(banana)
 		banana.split_occurred.connect(_on_banana_split)
-	layout_ready = true
+	layout_ready = _generate_bananas(Progress.attempt_seed)
+
+func _generate_bananas(seed_value: int) -> bool:
+	layout_error = ""
+	
+	if level.formations.is_empty():
+		if bananas.is_empty():
+			layout_error = "Level has no formations or authored bananas"
+			push_error(layout_error)
+			return false
+		return true
+	var existing: Array[Vector2] = []
+	
+	for banana in bananas:
+		existing.append(banana.global_position)
+	
+	var generation: Dictionary = LevelGenerator.generate(
+		level.formations,
+		chamber.get_global_rect(),
+		existing,
+		seed_value,
+		power_target,
+		heat_limit,
+		level.require_solution_formation
+	)
+	
+	if not generation.get("ok", false):
+		layout_error = str(
+			generation.get("error", "Unknown formation error.")
+		)
+		push_error(
+			"Level '%s': %s" % [level.title, layout_error]
+		)
+		return false
+	
+	var specs: Array = generation["specs"]
+	if specs.is_empty() and bananas.is_empty():
+		layout_error = "Formation recipe generated... no bananas...."
+		push_error(layout_error)
+		return false
+	
+	for spec in specs:
+		var banana := BANANA_SCENE.instantiate() as Banana
+		var world_position: Vector2 = spec["position"]
+		
+		banana.kind = spec["kind"]
+		banana.drift_speed = float(spec["speed"])
+		banana.start_angle_degrees = float(spec["angle"])
+		
+		banana.position = level.to_local(world_position)
+		banana.split_occurred.connect(_on_banana_split)
+		
+		level.add_child(banana)
+		bananas.append(banana)
+	
+	print(
+		"Generated %d bananas for '%s' using seed %d." % [specs.size(), level.title, seed_value]
+	)
+	
+	return true
 
 func _won() -> bool:
 	return heat_total <= heat_limit and power_total >= power_target

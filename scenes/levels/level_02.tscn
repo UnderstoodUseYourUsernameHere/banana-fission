@@ -1,16 +1,7 @@
 [gd_scene format=3 uid="uid://bomelqoasq4ti"]
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_vq1pa"]
-[ext_resource type="Script" uid="uid://bbbhkkqquiygk" path="res://scripts/spawn_rule.gd" id="2_3acmf"]
 [ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_c5o3r"]
-
-[sub_resource type="Resource" id="Resource_i2aat"]
-script = ExtResource("2_3acmf")
-count = 8
-speed_min = 49.0
-speed_max = 106.0
-min_spacing = 46.0
-metadata/_custom_type_script = "uid://bbbhkkqquiygk"
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_vq1pa")
@@ -19,7 +10,6 @@ ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' O
 power_target = 7
 heat_limit = 8
 gold_heat_limit = 9
-spawn_rules = Array[ExtResource("2_3acmf")]([SubResource("Resource_i2aat")])
 
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
 position = Vector2(345, 45)

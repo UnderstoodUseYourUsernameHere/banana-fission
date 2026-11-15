@@ -85,7 +85,8 @@ static func _generate_formation(
 	for _index in range(rule.overripe_count):
 		kinds.append(Banana.Kind.OVERRIPE)
 	
-	_shuffle_kinds(kinds, rng)
+	if rule.shuffle_kinds:
+		_shuffle_kinds(kinds, rng)
 	
 	for _attempt in range(MAX_FORMATION_TRIES):
 		var chosen_spacing: float = maxf(MIN_INTERNAL_DISTANCE, rule.spacing + rng.randf_range(-rule.spacing_jitter, rule.spacing_jitter))
@@ -150,8 +151,22 @@ static func _generate_formation(
 			rule.drift_speed + rng.randf_range(-rule.speed_jitter, rule.speed_jitter)
 		)
 		
+		var base_angle: float = rule.drift_angle_degrees
+		match rule.direction_mode:
+			FormationRule.DirectionMode.TOWARD_POINT:
+				var toward_target: Vector2 = (rule.motion_target - center)
+				if toward_target.length_squared() > 0.001:
+					base_angle = rad_to_deg(toward_target.angle())
+			FormationRule.DirectionMode.AWAY_FROM_POINT:
+				var away_from_target: Vector2 = (center - rule.motion_target)
+				if away_from_target.length_squared() > 0.001:
+					base_angle = rad_to_deg(away_from_target.angle())
+		
 		var shared_angle: float = (
-			rule.drift_angle_degrees + rng.randf_range(-rule.drift_angle_jitter_degrees, rule.drift_angle_jitter_degrees)
+			base_angle + rng.randf_range(
+				-rule.drift_angle_jitter_degrees,
+				rule.drift_angle_jitter_degrees
+			)
 		)
 		
 		var specs: Array[Dictionary] = []
@@ -164,8 +179,8 @@ static func _generate_formation(
 				speed = maxf(
 					0.0,
 					shared_speed + rng.randf_range(
-						-rule.speed_jitter,
-						rule.speed_jitter
+						-rule.individual_speed_jitter,
+						rule.individual_speed_jitter
 					)
 				)
 				
@@ -296,7 +311,7 @@ static func _assess_solution(
 	var heat: int = 0
 	
 	for spec in specs:
-		var which: Banana.Kind = spec["Kind"]
+		var which: Banana.Kind = spec["kind"]
 		var stats: Dictionary = Banana.stats_for_kind(which)
 		
 		power += int(stats["power"])

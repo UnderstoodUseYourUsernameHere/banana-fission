@@ -1,55 +1,40 @@
 [gd_scene format=3 uid="uid://lcivk4n1sl6u"]
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_i2aat"]
-[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_2djvx"]
 [ext_resource type="Script" uid="uid://bhow36grxpksq" path="res://scripts/formation_rule.gd" id="2_uvc87"]
 
 [sub_resource type="Resource" id="Resource_c5o3r"]
 script = ExtResource("2_uvc87")
+guaranteed_solution = true
+anchor = Vector2(300, 290)
+anchor_jitter = Vector2(20, 15)
+spacing_jitter = 3.0
+drift_speed = 20.0
+speed_jitter = 7.0
+drift_angle_degrees = 21.0
+direction_mode = 1
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[sub_resource type="Resource" id="Resource_2djvx"]
+script = ExtResource("2_uvc87")
+normal_count = 3
+pattern = 0
+anchor = Vector2(730, 250)
+anchor_jitter = Vector2(20, 20)
+spacing = 62.0
+spacing_jitter = 3.0
+position_jitter = 2.0
+rotation_degrees = 90.0
+rotation_jitter_degrees = 20.0
+separation_from_others = 200.0
+wall_margin = 35.0
 metadata/_custom_type_script = "uid://bhow36grxpksq"
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_i2aat")
 title = "First Split"
 ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
-gold_heat_limit = 8
-formations = Array[ExtResource("2_uvc87")]([SubResource("Resource_c5o3r")])
-
-[node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_2djvx")]
-position = Vector2(500, 300)
-drift_speed = 14.0
-start_angle_degrees = 22.0
-
-[node name="Banana2" parent="." unique_id=71259297 instance=ExtResource("2_2djvx")]
-position = Vector2(488, 199)
-kind = 1
-reaction_radius = 160.0
-power_yield = 3
-heat_yield = 4
-drift_speed = 100.0
-start_angle_degrees = 65.0
-
-[node name="Banana3" parent="." unique_id=1745667669 instance=ExtResource("2_2djvx")]
-position = Vector2(600, 150)
-drift_speed = 100.0
-start_angle_degrees = 65.0
-
-[node name="Banana4" parent="." unique_id=213498638 instance=ExtResource("2_2djvx")]
-position = Vector2(660, 181)
-drift_speed = 30.0
-start_angle_degrees = 160.0
-
-[node name="Banana5" parent="." unique_id=1736657249 instance=ExtResource("2_2djvx")]
-position = Vector2(589, 238)
-drift_speed = 24.0
-start_angle_degrees = 67.0
-
-[node name="Banana6" parent="." unique_id=248285369 instance=ExtResource("2_2djvx")]
-position = Vector2(438, 375)
-drift_speed = 27.0
-start_angle_degrees = 215.0
-
-[node name="Banana7" parent="." unique_id=558535088 instance=ExtResource("2_2djvx")]
-position = Vector2(365, 405)
-drift_speed = 60.0
-start_angle_degrees = 360.0
+power_target = 5
+gold_heat_limit = 5
+fixed_seed = 12345
+formations = Array[ExtResource("2_uvc87")]([SubResource("Resource_c5o3r"), SubResource("Resource_2djvx")])
