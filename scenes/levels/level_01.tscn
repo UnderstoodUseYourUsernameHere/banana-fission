@@ -6,28 +6,38 @@
 [sub_resource type="Resource" id="Resource_c5o3r"]
 script = ExtResource("2_uvc87")
 guaranteed_solution = true
-anchor = Vector2(300, 290)
-anchor_jitter = Vector2(20, 15)
-spacing_jitter = 3.0
-drift_speed = 20.0
-speed_jitter = 7.0
-drift_angle_degrees = 21.0
+shuffle_kinds = false
+pattern = 0
+anchor = Vector2(310, 290)
+anchor_jitter = Vector2(10, 15)
+spacing = 96.0
+spacing_jitter = 2.0
+rotation_jitter_degrees = 6.0
+separation_from_others = 100.0
+wall_margin = 30.0
+drift_speed = 35.0
+speed_jitter = 3.0
 direction_mode = 1
+drift_angle_jitter_degrees = 5.0
+individual_angle_jitter_degrees = 0.0
 metadata/_custom_type_script = "uid://bhow36grxpksq"
 
 [sub_resource type="Resource" id="Resource_2djvx"]
 script = ExtResource("2_uvc87")
 normal_count = 3
-pattern = 0
-anchor = Vector2(730, 250)
-anchor_jitter = Vector2(20, 20)
-spacing = 62.0
+shuffle_kinds = false
+anchor = Vector2(805, 290)
+anchor_jitter = Vector2(10, 25)
+spacing = 64.0
 spacing_jitter = 3.0
 position_jitter = 2.0
-rotation_degrees = 90.0
-rotation_jitter_degrees = 20.0
-separation_from_others = 200.0
-wall_margin = 35.0
+separation_from_others = 170.0
+wall_margin = 25.0
+speed_jitter = 3.0
+individual_speed_jitter = 2.0
+drift_angle_degrees = 180.0
+direction_mode = 1
+drift_angle_jitter_degrees = 5.0
 metadata/_custom_type_script = "uid://bhow36grxpksq"
 
 [node name="Level" type="Node2D" unique_id=964198586]
@@ -36,5 +46,4 @@ title = "First Split"
 ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
 power_target = 5
 gold_heat_limit = 5
-fixed_seed = 12345
 formations = Array[ExtResource("2_uvc87")]([SubResource("Resource_c5o3r"), SubResource("Resource_2djvx")])

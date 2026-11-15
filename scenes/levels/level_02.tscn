@@ -1,24 +1,49 @@
 [gd_scene format=3 uid="uid://bomelqoasq4ti"]
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_vq1pa"]
-[ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_c5o3r"]
+[ext_resource type="Script" uid="uid://bhow36grxpksq" path="res://scripts/formation_rule.gd" id="2_vq1pa"]
+
+[sub_resource type="Resource" id="Resource_i2aat"]
+script = ExtResource("2_vq1pa")
+normal_count = 6
+guaranteed_solution = true
+shuffle_kinds = false
+anchor = Vector2(305, 290)
+anchor_jitter = Vector2(12, 18)
+spacing = 96.0
+spacing_jitter = 2.0
+position_jitter = 1.0
+separation_from_others = 103.0
+wall_margin = 34.0
+drift_speed = 65.0
+direction_mode = 1
+drift_angle_jitter_degrees = 7.0
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[sub_resource type="Resource" id="Resource_2djvx"]
+script = ExtResource("2_vq1pa")
+normal_count = 1
+overripe_count = 3
+shuffle_kinds = false
+pattern = 2
+anchor = Vector2(730, 290)
+anchor_jitter = Vector2(12, 30)
+spacing = 76.0
+rotation_degrees = 180.0
+rotation_jitter_degrees = 20.0
+arc_degrees = 125.0
+separation_from_others = 160.0
+wall_margin = 30.0
+drift_speed = 75.0
+speed_jitter = 5.0
+individual_speed_jitter = 3.0
+direction_mode = 1
+drift_angle_jitter_degrees = 8.0
+metadata/_custom_type_script = "uid://bhow36grxpksq"
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_vq1pa")
 title = "Moving Parts?"
 ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' ONE!"
-power_target = 7
-heat_limit = 8
-gold_heat_limit = 9
-
-[node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_c5o3r")]
-position = Vector2(345, 45)
-
-[node name="Banana2" parent="." unique_id=1889511718 instance=ExtResource("2_c5o3r")]
-position = Vector2(270, 246)
-
-[node name="Banana3" parent="." unique_id=1360865285 instance=ExtResource("2_c5o3r")]
-position = Vector2(477, 190)
-
-[node name="Banana4" parent="." unique_id=1442384144 instance=ExtResource("2_c5o3r")]
-position = Vector2(645, 131)
+formations = Array[ExtResource("2_vq1pa")]([SubResource("Resource_i2aat"), SubResource("Resource_2djvx")])
+require_solution_formation = false
