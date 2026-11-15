@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://djhn8sb53cfce"]
 
 [ext_resource type="Script" uid="uid://b38ta8saxrjul" path="res://scripts/main.gd" id="1_o5qli"]
+[ext_resource type="AudioStream" uid="uid://x6ito206jr37" path="res://assets/sfx/impactMining_000.ogg" id="2_sugp2"]
+[ext_resource type="AudioStream" uid="uid://c2l7dvnkoc8jn" path="res://assets/sfx/impactMining_002.ogg" id="3_jyhfs"]
 [ext_resource type="Script" uid="uid://t482fluxjctx" path="res://scripts/aim.gd" id="3_sugp2"]
+[ext_resource type="AudioStream" uid="uid://dk0onfclh3dbk" path="res://assets/sfx/impactBell_heavy_001.ogg" id="4_tbgi4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pspmk"]
 bg_color = Color(0.5580934, 0.79221535, 0.34376252, 1)
@@ -11,6 +14,9 @@ bg_color = Color(0.80208564, 0.3283373, 0.24766997, 1)
 
 [node name="Main" type="Node2D" unique_id=922528448]
 script = ExtResource("1_o5qli")
+ignite_sound = ExtResource("2_sugp2")
+split_sound = ExtResource("3_jyhfs")
+fizzle_sound = ExtResource("4_tbgi4")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1974400762]
 offset_right = 960.0

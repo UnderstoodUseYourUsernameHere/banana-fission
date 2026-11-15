@@ -12,12 +12,24 @@ const SPLIT_SHAKE: float = 2.5
 const OVERRIPE_SHAKE: float = 6.0
 const OVERHEAT_SHAKE: float = 14.0
 const SHAKE_DECAY: float = 30.0
+const SPLIT_SOUNDS: int = 8
 
 enum RoundState {
 	AIMING,
 	REACTING,
 	COMPLETE
 }
+
+@export_group("Audio")
+@export var ignite_sound: AudioStream
+@export var split_sound: AudioStream
+@export var overheat_sound: AudioStream
+@export var stable_sound: AudioStream
+@export var fizzle_sound: AudioStream
+
+var split_players: Array[AudioStreamPlayer] = []
+var next_split_voice: int = 0
+var sfx_player: AudioStreamPlayer
 
 var level: Level
 var power_target: int = 6
@@ -58,6 +70,7 @@ var layout_ready: bool = false
 var layout_error: String = ""
 
 func _ready() -> void:
+	_build_audio()
 	_load_level()
 	
 	aim.ignited.connect(_on_ignited)
@@ -79,12 +92,14 @@ func _on_ignited(world_position: Vector2) -> void:
 	Progress.record_attempt()
 	state = RoundState.REACTING
 	aim.active = false
+	_play_sfx(ignite_sound)
 	intro.visible = false
 	_spawn_pulse(world_position, IGNITION_RADIUS, IGNITION_COLOR)
 	_update_status()
 
 func _on_banana_split(banana: Banana) -> void:
 	split_count += 1
+	_play_split_sound(banana)
 	_add_shake(OVERRIPE_SHAKE if banana.kind == Banana.Kind.OVERRIPE else SPLIT_SHAKE)
 	_flash(Color("ff3020"), 0.45, 0.4)
 	_spawn_split_burst(banana.global_position)
@@ -211,6 +226,7 @@ func _finish_round() -> void:
 	continue_button.visible = _won()
 	if _won():
 		Progress.record_clear(earned_stars)
+	_play_result_feedback()
 	_update_status()
 
 func _update_status() -> void:
@@ -427,3 +443,43 @@ func _tween_bar(bar: ProgressBar, target: float) -> void:
 	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(bar, "value", target, 0.18)
 	bar_tweens[bar] = tween
+
+func _build_audio() -> void:
+	for i in range(SPLIT_SOUNDS):
+		var player := AudioStreamPlayer.new()
+		player.volume_db = -16.0
+		add_child(player)
+		split_players.append(player)
+	
+	sfx_player = AudioStreamPlayer.new()
+	sfx_player.volume_db = -10.0
+	add_child(sfx_player)
+
+func _play_split_sound(banana: Banana) -> void:
+	if split_sound == null:
+		return
+	
+	var player: AudioStreamPlayer = split_players[next_split_voice]
+	next_split_voice = (next_split_voice + 1) % split_players.size()
+	
+	var pitch: float = 1.0 + minf(float(split_count), 12.0) * 0.05 + randf_range(-0.03, 0.03)
+	if banana.kind == Banana.Kind.OVERRIPE:
+		pitch *= 0.7
+	
+	player.stream = split_sound
+	player.pitch_scale = pitch
+	player.play()
+
+func _play_sfx(stream: AudioStream) -> void:
+	if stream == null:
+		return
+	sfx_player.stream = stream
+	sfx_player.play()
+
+func _play_result_feedback() -> void:
+	if heat_total > heat_limit:
+		_play_sfx(overheat_sound)
+	elif _won():
+		_play_sfx(stable_sound)
+	else:
+		_play_sfx(fizzle_sound)
