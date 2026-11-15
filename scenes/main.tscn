@@ -135,3 +135,7 @@ offset_right = 8.0
 offset_bottom = 8.0
 focus_mode = 0
 text = "SCRAM (Space)"
+
+[node name="Camera" type="Camera2D" parent="." unique_id=215346093]
+unique_name_in_owner = true
+anchor_mode = 0

@@ -46,4 +46,3 @@ script = ExtResource("1_vq1pa")
 title = "Moving Parts?"
 ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' ONE!"
 formations = Array[ExtResource("2_vq1pa")]([SubResource("Resource_i2aat"), SubResource("Resource_2djvx")])
-require_solution_formation = false

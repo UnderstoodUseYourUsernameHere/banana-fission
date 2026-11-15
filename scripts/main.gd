@@ -7,6 +7,10 @@ const BANANA_SCENE = preload("res://scenes/banana.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
+const SPLIT_SHAKE: float = 2.5
+const OVERRIPE_SHAKE: float = 6.0
+const OVERHEAT_SHAKE: float = 14.0
+const SHAKE_DECAY: float = 30.0
 
 enum RoundState {
 	AIMING,
@@ -34,6 +38,7 @@ var heat_limit: int = 7
 @onready var continue_button: Button = $%Continue
 @onready var scram_button: Button = $%Scram
 @onready var help_label: Label = $%Help
+@onready var Camera: Camera2D = $%Camera
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -43,6 +48,7 @@ var power_total: int = 0
 var heat_total: int = 0
 var scram_used: bool = false
 var earned_stars: int = 0
+var shake_strength: float = 0.0
 
 var layout_ready: bool = false
 var layout_error: String = ""
@@ -75,12 +81,14 @@ func _on_ignited(world_position: Vector2) -> void:
 
 func _on_banana_split(banana: Banana) -> void:
 	split_count += 1
+	_add_shake(OVERRIPE_SHAKE if banana.kind == Banana.Kind.OVERRIPE else SPLIT_SHAKE)
 	_spawn_split_burst(banana.global_position)
 	_spawn_split_halves(banana)
 	power_total += banana.power_yield
 	heat_total += banana.heat_yield
 	
 	if heat_total > heat_limit:
+		_add_shake(OVERHEAT_SHAKE)
 		_finish_round()
 		return
 	
@@ -113,6 +121,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("menu"):
 		get_viewport().set_input_as_handled()
 		get_tree().change_scene_to_file("res://scenes/title.tscn")
+
+func _process(delta: float) -> void:
+	_update_shake(delta)
 
 func _physics_process(delta: float) -> void:
 	if not layout_ready:
@@ -362,3 +373,14 @@ func _calculate_stars() -> int:
 		return 3
 	
 	return 2
+
+func _add_shake(amount: float) -> void:
+	shake_strength = maxf(shake_strength, amount)
+
+func _update_shake(delta: float) -> void:
+	if shake_strength <= 0.0:
+		Camera.offset = Vector2.ZERO
+		return
+	
+	Camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * shake_strength
+	shake_strength = move_toward(shake_strength, 0.0, SHAKE_DECAY * delta)
