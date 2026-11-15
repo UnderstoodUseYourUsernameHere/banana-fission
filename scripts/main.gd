@@ -53,6 +53,7 @@ var heat_limit: int = 7
 @onready var help_label: Label = $%Help
 @onready var camera: Camera2D = $%Camera
 @onready var flash: ColorRect = $%Flash
+@onready var banner: Label = $%Banner
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -479,7 +480,21 @@ func _play_sfx(stream: AudioStream) -> void:
 func _play_result_feedback() -> void:
 	if heat_total > heat_limit:
 		_play_sfx(overheat_sound)
+		_show_banner("MELTDOWNNNN! PONCHO, SAVE MY MONEY!!!", Color("ff5a4a"))
 	elif _won():
 		_play_sfx(stable_sound)
+		_show_banner("STABLE! %d/3" % earned_stars, Color("65d6a0"))
+		_flash(Color("65d6a0"), 0.2, 0.45)
 	else:
 		_play_sfx(fizzle_sound)
+		_show_banner("Fizzleeee outt... PONCHO, WHAT THE HELL?!", Color("c9c9d6"))
+
+func _show_banner(text: String, color: Color) -> void:
+	banner.text = text
+	banner.modulate = color
+	banner.visible = true
+	banner.pivot_offset = banner.size * 0.5
+	banner.scale = Vector2(1.8, 1.8)
+	
+	var tween := create_tween()
+	tween.tween_property(banner, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
