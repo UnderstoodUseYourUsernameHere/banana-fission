@@ -80,7 +80,6 @@ offset_right = 390.0
 offset_bottom = 82.0
 mouse_filter = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_pspmk")
-step = 1.0
 show_percentage = false
 
 [node name="HeatLabel" type="Label" parent="HUD" unique_id=172356370]
@@ -99,7 +98,6 @@ offset_right = 920.0
 offset_bottom = 62.0
 mouse_filter = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_mi5ts")
-step = 1.0
 show_percentage = false
 
 [node name="Retry" type="Button" parent="HUD" unique_id=839248469]

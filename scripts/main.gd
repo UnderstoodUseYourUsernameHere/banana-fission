@@ -46,6 +46,7 @@ var state: RoundState = RoundState.AIMING
 var split_count: int = 0
 var active_pulses: Array[Pulse] = []
 var bananas: Array[Banana] = []
+var bar_tweens: Dictionary = {}
 var power_total: int = 0
 var heat_total: int = 0
 var scram_used: bool = false
@@ -243,10 +244,10 @@ func _update_readouts() -> void:
 	heat_label.text = "Heat: %d / %d" % [heat_total, heat_limit]
 	
 	power_bar.max_value = power_target
-	power_bar.value = power_total
+	_tween_bar(power_bar, power_total)
 	
 	heat_bar.max_value = heat_limit
-	heat_bar.value = heat_total
+	_tween_bar(heat_bar, heat_total)
 	heat_danger = heat_total > 0 and heat_limit - heat_total <= 1
 	
 	if heat_total > heat_limit:
@@ -416,3 +417,13 @@ func _spawn_float_text(world_position: Vector2, text: String, color: Color, size
 	popup.font_size = size
 	effect_container.add_child(popup)
 	popup.global_position = world_position
+
+func _tween_bar(bar: ProgressBar, target: float) -> void:
+	var previous: Tween = bar_tweens.get(bar)
+	if previous != null and previous.is_valid():
+		previous.kill()
+	
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(bar, "value", target, 0.18)
+	bar_tweens[bar] = tween
