@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ioaamb05au17"]
+
+[ext_resource type="Script" uid="uid://cv5nltlqkne4l" path="res://scripts/float_text.gd" id="1_jnpgm"]
+
+[node name="FloatText" type="Node2D" unique_id=473578640]
+script = ExtResource("1_jnpgm")

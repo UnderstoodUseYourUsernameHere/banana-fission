@@ -4,6 +4,7 @@ const PULSE_SCENE = preload("res://scenes/pulse.tscn")
 const SPLIT_BURST_SCENE = preload("res://scenes/split_burst.tscn")
 const BANANA_HALF_SCENE = preload("res://scenes/banana_half.tscn")
 const BANANA_SCENE = preload("res://scenes/banana.tscn")
+const FLOAT_TEXT_SCENE = preload("res://scenes/float_text.tscn")
 const HALF_SPEED: float = 140.0
 const IGNITION_RADIUS: float = 70.0
 const IGNITION_COLOR: Color = Color(1.0, 1.0, 1.0)
@@ -89,6 +90,8 @@ func _on_banana_split(banana: Banana) -> void:
 	_spawn_split_halves(banana)
 	power_total += banana.power_yield
 	heat_total += banana.heat_yield
+	_spawn_float_text(banana.global_position + Vector2(-12, -24), "+%d" % banana.power_yield, Color("65d6a0"))
+	_spawn_float_text(banana.global_position + Vector2(12, -24), "+%d" % banana.heat_yield, Color("ffb347"))
 	
 	if heat_total > heat_limit:
 		_add_shake(OVERHEAT_SHAKE)
@@ -405,3 +408,11 @@ func _flash(color: Color, strength: float, duration: float) -> void:
 	flash.color = Color(color, strength)
 	var tween := create_tween()
 	tween.tween_property(flash, "color:a", 0.0, duration)
+
+func _spawn_float_text(world_position: Vector2, text: String, color: Color, size: int = 16) -> void:
+	var popup := FLOAT_TEXT_SCENE.instantiate() as FloatText
+	popup.text = text
+	popup.color = color
+	popup.font_size = size
+	effect_container.add_child(popup)
+	popup.global_position = world_position
