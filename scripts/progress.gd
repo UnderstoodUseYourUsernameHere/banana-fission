@@ -10,6 +10,11 @@ var attempts: Dictionary = {}
 var best_stars: Dictionary = {}
 var energy: int = 0
 
+var upgrades: Dictionary = {}
+var toggles: Dictionary = {}
+var shop_return_scene: String = "res://scenes/title.tscn"
+
+
 func level_count() -> int:
 	return levels.size()
 
@@ -42,6 +47,8 @@ func reset_all() -> void:
 	highest_cleared = -1
 	attempts.clear()
 	best_stars.clear()
+	upgrades.clear()
+	toggles.clear()
 	energy = 0
 	save_progress()
 
@@ -51,6 +58,8 @@ func save_progress() -> void:
 	config.set_value("progress", "attempts", attempts)
 	config.set_value("progress", "best_stars", best_stars)
 	config.set_value("progress", "energy", energy)
+	config.set_value("progress", "upgrades", upgrades)
+	config.set_value("progress", "toggles", toggles)
 	var save_error: Error = config.save(SAVE_PATH)
 	if save_error != OK:
 		push_warning("Could not save progress: %s" % error_string(save_error))
@@ -64,6 +73,10 @@ func load_progress() -> void:
 	var loaded_stars: Variant = config.get_value("progress", "best_stars", {})
 	best_stars = loaded_stars if loaded_stars is Dictionary else {}
 	energy = int(config.get_value("progress", "energy", 0))
+	var loaded_upgrades: Variant = config.get_value("progress", "upgrades", {})
+	upgrades = loaded_upgrades if loaded_upgrades is Dictionary else {}
+	var loaded_toggles: Variant = config.get_value("progress", "toggles", {})
+	toggles = loaded_toggles if loaded_toggles is Dictionary else {}
 
 func stars_for(index: int) -> int:
 	return clampi(int(best_stars.get(index, 0)), 0, 3)
@@ -71,3 +84,26 @@ func stars_for(index: int) -> int:
 func add_energy(amount: int) -> void:
 	energy += maxi(amount, 0)
 	save_progress
+
+func upgrade_level(id: String) -> int:
+	return int(upgrades.get(id, 0))
+
+func has_upgrade(id: String) -> bool:
+	return upgrade_level(id) > 0
+
+func buy_upgrade(id: String) -> bool:
+	var cost: int = UpgradeCatalog.next_cost(id, upgrade_level(id))
+	if cost < 0 or energy < cost or not UpgradeCatalog.is_Unlocked(id):
+		return false
+	
+	energy -= cost
+	upgrades[id] = upgrade_level(id) + 1
+	save_progress()
+	return true
+
+func is_toggle_on(id: String) -> bool:
+	return bool(toggles.get(id, true))
+
+func set_toggle(id: String, on: bool) -> void:
+	toggles[id] = on
+	save_progress()
