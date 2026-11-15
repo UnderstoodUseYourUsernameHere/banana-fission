@@ -8,6 +8,7 @@ var attempt_seed: int = 0
 var highest_cleared: int = -1
 var attempts: Dictionary = {}
 var best_stars: Dictionary = {}
+var energy: int = 0
 
 func level_count() -> int:
 	return levels.size()
@@ -41,6 +42,7 @@ func reset_all() -> void:
 	highest_cleared = -1
 	attempts.clear()
 	best_stars.clear()
+	energy = 0
 	save_progress()
 
 func save_progress() -> void:
@@ -48,6 +50,7 @@ func save_progress() -> void:
 	config.set_value("progress", "highest_cleared", highest_cleared)
 	config.set_value("progress", "attempts", attempts)
 	config.set_value("progress", "best_stars", best_stars)
+	config.set_value("progress", "energy", energy)
 	var save_error: Error = config.save(SAVE_PATH)
 	if save_error != OK:
 		push_warning("Could not save progress: %s" % error_string(save_error))
@@ -60,6 +63,11 @@ func load_progress() -> void:
 	attempts = config.get_value("progress", "attempts", {})
 	var loaded_stars: Variant = config.get_value("progress", "best_stars", {})
 	best_stars = loaded_stars if loaded_stars is Dictionary else {}
+	energy = int(config.get_value("progress", "energy", 0))
 
 func stars_for(index: int) -> int:
 	return clampi(int(best_stars.get(index, 0)), 0, 3)
+
+func add_energy(amount: int) -> void:
+	energy += maxi(amount, 0)
+	save_progress

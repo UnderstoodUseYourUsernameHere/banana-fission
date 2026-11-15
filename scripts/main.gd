@@ -54,6 +54,7 @@ var heat_limit: int = 7
 @onready var camera: Camera2D = $%Camera
 @onready var flash: ColorRect = $%Flash
 @onready var banner: Label = $%Banner
+@onready var energy_label: Label = $%EnergyLabel
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -66,6 +67,7 @@ var scram_used: bool = false
 var earned_stars: int = 0
 var shake_strength: float = 0.0
 var heat_danger: bool = false
+var energy_earned: int = 0
 
 var layout_ready: bool = false
 var layout_error: String = ""
@@ -226,6 +228,9 @@ func _finish_round() -> void:
 	earned_stars = _calculate_stars()
 	continue_button.visible = _won()
 	if _won():
+		var first_clear: bool = Progress.stars_for(Progress.current_level) == 0
+		energy_earned = _energy_reward(first_clear)
+		Progress.add_energy(energy_earned)
 		Progress.record_clear(earned_stars)
 	_play_result_feedback()
 	_update_status()
@@ -252,7 +257,7 @@ func _update_status() -> void:
 			if heat_total > heat_limit:
 				status.text = "OVERHEATED! Rating 0/3  |  Heat %d / %d  |  R to retry!" % [heat_total, heat_limit]
 			elif _won():
-				status.text = "%sSTABLE! Rating %d/3  |  Power %d  |  Heat %d" % [scram_prefix, earned_stars, power_total, heat_total]
+				status.text = "%sSTABLE! Rating %d/3  |  Power %d  |  Heat %d  |  +%d energy!" % [scram_prefix, earned_stars, power_total, heat_total, energy_earned]
 			else:
 				status.text = "%sNOT ENOUGH POWER! Rating 0/3  |  Power %d / %d  |  R to retry!" % [scram_prefix, power_total, power_target]
 
@@ -273,6 +278,8 @@ func _update_readouts() -> void:
 		heat_label.modulate = Color("ffb347")
 	else:
 		heat_label.modulate = Color.WHITE
+	
+	energy_label.text = "Energy: %d" % Progress.energy
 
 func _spawn_split_burst(world_position: Vector2) -> void:
 	var burst: Node2D = SPLIT_BURST_SCENE.instantiate()
@@ -485,6 +492,7 @@ func _play_result_feedback() -> void:
 		_play_sfx(stable_sound)
 		_show_banner("STABLE! %d/3" % earned_stars, Color("65d6a0"))
 		_flash(Color("65d6a0"), 0.2, 0.45)
+		_spawn_float_text(chamber.get_global_rect().get_center() + Vector2(0, 60), "+%d ENERGY" % energy_earned, Color("ffd23f"), 26)
 	else:
 		_play_sfx(fizzle_sound)
 		_show_banner("Fizzleeee outt... PONCHO, WHAT THE HELL?!", Color("c9c9d6"))
@@ -498,3 +506,9 @@ func _show_banner(text: String, color: Color) -> void:
 	
 	var tween := create_tween()
 	tween.tween_property(banner, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _energy_reward(first_clear: bool) -> int:
+	var reward: float = float(power_total + earned_stars * 2)
+	if not first_clear:
+		reward *= 0.5
+	return maxi(1, roundi(reward))

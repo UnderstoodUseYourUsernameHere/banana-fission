@@ -60,7 +60,7 @@ theme_override_font_sizes/font_size = 24
 unique_name_in_owner = true
 offset_left = 336.0
 offset_top = 18.0
-offset_right = 920.0
+offset_right = 776.0
 offset_bottom = 44.0
 text = "RATTICUS' BANANILATOR"
 
@@ -160,6 +160,15 @@ theme_override_fonts/font = ExtResource("6_tefeu")
 theme_override_font_sizes/font_size = 44
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EnergyLabel" type="Label" parent="HUD" unique_id=915149969]
+unique_name_in_owner = true
+offset_left = 790.0
+offset_right = 920.0
+offset_bottom = 26.0
+theme_override_colors/font_color = Color(1, 0.8235294, 0.24705882, 1)
+theme_override_fonts/font = ExtResource("6_tefeu")
+horizontal_alignment = 2
 
 [node name="Camera" type="Camera2D" parent="." unique_id=215346093]
 unique_name_in_owner = true
