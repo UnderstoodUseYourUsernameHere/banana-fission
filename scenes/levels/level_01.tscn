@@ -2,12 +2,18 @@
 
 [ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_i2aat"]
 [ext_resource type="PackedScene" uid="uid://chn41nef2631r" path="res://scenes/banana.tscn" id="2_2djvx"]
+[ext_resource type="Script" uid="uid://bhow36grxpksq" path="res://scripts/formation_rule.gd" id="2_uvc87"]
+
+[sub_resource type="Resource" id="Resource_c5o3r"]
+script = ExtResource("2_uvc87")
+metadata/_custom_type_script = "uid://bhow36grxpksq"
 
 [node name="Level" type="Node2D" unique_id=964198586]
 script = ExtResource("1_i2aat")
 title = "First Split"
 ratticus_line = "SEE?!?! BANANAS WERE ALWAYS THE FUTURE, PONCHO!!"
 gold_heat_limit = 8
+formations = Array[ExtResource("2_uvc87")]([SubResource("Resource_c5o3r")])
 
 [node name="Banana" parent="." unique_id=993941136 instance=ExtResource("2_2djvx")]
 position = Vector2(500, 300)

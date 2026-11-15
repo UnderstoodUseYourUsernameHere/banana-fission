@@ -13,4 +13,4 @@ class_name Level
 
 @export_group("Controlled Generation")
 @export var formations: Array[FormationRule] = []
-@export var require_selection_formation: bool = true
+@export var require_solution_formation: bool = true

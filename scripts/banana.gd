@@ -117,16 +117,27 @@ func advance_motion(delta: float, chamber_bounds: Rect2) -> void:
 func get_drift_velocity() -> Vector2:
 	return _velocity
 
-func _apply_kind() -> void:
-	match kind:
-		Kind.NORMAL:
-			power_yield = 1
-			heat_yield = 1
-			reaction_radius = 90.0
+static func stats_for_kind(which: Kind) -> Dictionary:
+	match which:
 		Kind.OVERRIPE:
-			power_yield = 3
-			heat_yield = 4
-			reaction_radius = 160.0
+			return {
+				"power": 3,
+				"heat": 4,
+				"radius": 160.0
+			}
+		_:
+			return {
+				"power": 1,
+				"heat": 1,
+				"radius": 90.0
+			}
+
+func _apply_kind() -> void:
+	var stats: Dictionary = Banana.stats_for_kind(kind)
+	
+	power_yield = int(stats["power"])
+	heat_yield = int(stats["heat"])
+	reaction_radius = float(stats["radius"])
 
 func pulse_color() -> Color:
 	return Color(0.4, 0.95, 1.0) if kind == Kind.NORMAL else Color(0.6, 1.0, 0.35)
