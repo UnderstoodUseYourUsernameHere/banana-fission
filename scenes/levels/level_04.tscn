@@ -1,3 +1,45 @@
 [gd_scene format=3 uid="uid://b4lnoqeg2r1qn"]
 
-[node name="Level04" type="Node2D" unique_id=95902369]
+[ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_31sm7"]
+[ext_resource type="Script" uid="uid://bhow36grxpksq" path="res://scripts/formation_rule.gd" id="2_wu80y"]
+
+[sub_resource type="Resource" id="Resource_cj36e"]
+script = ExtResource("2_wu80y")
+normal_count = 9
+overripe_count = 1
+guaranteed_solution = true
+shuffle_kinds = false
+anchor = Vector2(300, 290)
+anchor_jitter = Vector2(15, 25)
+spacing = 100.0
+spacing_jitter = 7.0
+separation_from_others = 105.0
+wall_margin = 22.0
+drift_speed = 80.0
+direction_mode = 1
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[sub_resource type="Resource" id="Resource_up1bk"]
+script = ExtResource("2_wu80y")
+normal_count = 1
+overripe_count = 4
+anchor = Vector2(800, 290)
+anchor_jitter = Vector2(16, 30)
+spacing = 65.0
+separation_from_others = 175.0
+wall_margin = 25.0
+drift_speed = 117.0
+speed_jitter = 8.0
+drift_angle_degrees = 10.0
+direction_mode = 2
+drift_angle_jitter_degrees = 135.0
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[node name="Level" type="Node2D" unique_id=95902369]
+script = ExtResource("1_31sm7")
+title = "Crtical split!"
+ratticus_line = "CHRIST ON A STICK, PONCHO! WE'RE DONE FOR! JUST PUT ALL OF THE BANANAS IN!"
+power_target = 12
+heat_limit = 14
+gold_heat_limit = 13
+formations = Array[ExtResource("2_wu80y")]([SubResource("Resource_cj36e"), SubResource("Resource_up1bk")])

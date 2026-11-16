@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://d3ok47dq7uyw3"]
+
+[ext_resource type="Script" uid="uid://cctqlggfk0du6" path="res://scripts/ending.gd" id="1_fyrdv"]
+[ext_resource type="FontFile" uid="uid://dpa0uotuu8ok1" path="res://assets/fonts/ATP-Pleasurize.woff2" id="1_mqjok"]
+
+[node name="Ending" type="Control" unique_id=1584016265]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fyrdv")
+
+[node name="Background" type="ColorRect" parent="." unique_id=916975963]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.050980393, 0.043137256, 0.07058824, 1)
+
+[node name="Line" type="Label" parent="." unique_id=1868513138]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 80.0
+offset_top = 230.0
+offset_right = 880.0
+offset_bottom = 350.0
+theme_override_fonts/font = ExtResource("1_mqjok")
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Prompt" type="Label" parent="." unique_id=1315117052]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 470.0
+offset_right = 960.0
+offset_bottom = 494.0
+theme_override_fonts/font = ExtResource("1_mqjok")
+theme_override_font_sizes/font_size = 14
+text = "click to continue"
+horizontal_alignment = 1
+vertical_alignment = 1

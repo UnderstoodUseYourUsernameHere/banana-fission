@@ -445,7 +445,7 @@ func _on_continue_pressed() -> void:
 	var return_scene: String
 	
 	if Progress.is_last_level():
-		return_scene = "res://scenes/title.tscn"
+		return_scene = "res://scenes/ending.tscn"
 	else:
 		Progress.current_level += 1
 		return_scene = "res://scenes/main.tscn"
