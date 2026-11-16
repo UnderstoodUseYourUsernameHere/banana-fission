@@ -45,4 +45,5 @@ metadata/_custom_type_script = "uid://bhow36grxpksq"
 script = ExtResource("1_vq1pa")
 title = "Moving Parts?"
 ratticus_line = "HERES MY OLD STOCK TOO! THE ONLY GOOD BANANA IS A MONEYMAKIN' ONE!"
+allow_automation = false
 formations = Array[ExtResource("2_vq1pa")]([SubResource("Resource_i2aat"), SubResource("Resource_2djvx")])

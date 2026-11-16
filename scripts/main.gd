@@ -55,6 +55,7 @@ var heat_limit: int = 7
 @onready var flash: ColorRect = $%Flash
 @onready var banner: Label = $%Banner
 @onready var energy_label: Label = $%EnergyLabel
+@onready var automation_label: Label = $%AutomationLabel
 
 var state: RoundState = RoundState.AIMING
 var split_count: int = 0
@@ -68,6 +69,7 @@ var earned_stars: int = 0
 var shake_strength: float = 0.0
 var heat_danger: bool = false
 var energy_earned: int = 0
+var auto_scram_triggered: bool = false
 
 var layout_ready: bool = false
 var layout_error: String = ""
@@ -117,6 +119,17 @@ func _on_banana_split(banana: Banana) -> void:
 		_finish_round()
 		return
 	
+	if (_auto_scram_active() and power_total >= power_target):
+		auto_scram_triggered = true
+		_spawn_float_text(
+			banana.global_position + Vector2(0, -44),
+			"AUTO-SCRAM!",
+			Color("88e0ff"),
+			18
+		)
+		_use_scram()
+		return
+	
 	_spawn_pulse(banana.global_position, banana.reaction_radius, banana.pulse_color())
 	_update_status()
 
@@ -129,6 +142,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("scram"):
 		get_viewport().set_input_as_handled()
 		_use_scram()
+		return
+	
+	if event.is_action_pressed("toggle_auto_scram"):
+		get_viewport().set_input_as_handled()
+		_toggle_upgrade(UpgradeCatalog.AUTO_SCRAM)
 		return
 	
 	if event.is_action_pressed("new_layout"):
@@ -154,6 +172,7 @@ func _process(delta: float) -> void:
 		heat_bar.modulate = Color.WHITE.lerp(Color("ff5a4a"), throb)
 	else:
 		heat_bar.modulate = Color.WHITE
+	_update_automation_label()
 
 func _physics_process(delta: float) -> void:
 	if not layout_ready:
@@ -245,7 +264,12 @@ func _update_status() -> void:
 		return
 	
 	scram_button.visible = (state == RoundState.REACTING and not scram_used)
-	var scram_prefix: String = "SCRAMMED - " if scram_used else ""
+	var scram_prefix: String = ""
+	
+	if auto_scram_triggered:
+		scram_prefix = "AUTO-SCRAM - "
+	else:
+		scram_prefix = "SCRAMMED - "
 	
 	match state:
 		RoundState.AIMING:
@@ -418,7 +442,7 @@ func _calculate_stars() -> int:
 		return 0
 	
 	if scram_used: 
-		return 1
+		return 2 if auto_scram_triggered else 1
 	
 	var gold_limit: int = mini(level.gold_heat_limit, heat_limit)
 	
@@ -536,4 +560,27 @@ func _ignition_radius() -> float:
 				UpgradeCatalog.IGNITION_COIL
 			)
 		)
+	)
+
+func _auto_scram_active() -> bool:
+	return (
+		level.allow_automation and Progress.has_upgrade(UpgradeCatalog.AUTO_SCRAM) and Progress.is_toggle_on(UpgradeCatalog.AUTO_SCRAM)
+	)
+
+func _toggle_upgrade(id: String) -> void:
+	if not Progress.has_upgrade(id):
+		return
+	Progress.set_toggle(id, not Progress.is_toggle_on(id))
+
+func _update_automation_label() -> void:
+	if not Progress.has_upgrade(UpgradeCatalog.AUTO_SCRAM):
+		automation_label.text = ""
+		return
+	
+	if not level.allow_automation:
+		automation_label.text = ("AUTOMATION OFFLINE - " + "Ratticus insists you do this one yourself.")
+		return
+	
+	automation_label.text = (
+		"AUTO-SCRAM [T]: %s" % ("ON" if Progress.is_toggle_on(UpgradeCatalog.AUTO_SCRAM) else "OFF")
 	)
