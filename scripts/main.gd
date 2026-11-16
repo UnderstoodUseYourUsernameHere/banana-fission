@@ -77,7 +77,7 @@ func _ready() -> void:
 	_load_level()
 	
 	aim.ignited.connect(_on_ignited)
-	aim.configure(chamber.get_global_rect(), bananas, IGNITION_RADIUS) 
+	aim.configure(chamber.get_global_rect(), bananas, _ignition_radius())
 	aim.active = layout_ready
 	
 	retry_button.pressed.connect(_restart_attempt)
@@ -97,7 +97,7 @@ func _on_ignited(world_position: Vector2) -> void:
 	aim.active = false
 	_play_sfx(ignite_sound)
 	intro.visible = false
-	_spawn_pulse(world_position, IGNITION_RADIUS, IGNITION_COLOR)
+	_spawn_pulse(world_position, _ignition_radius(), IGNITION_COLOR)
 	_update_status()
 
 func _on_banana_split(banana: Banana) -> void:	
@@ -320,7 +320,7 @@ func _load_level() -> void:
 		Progress.attempt_seed = level.fixed_seed if level.fixed_seed != 0 else randi_range(1, 2147483647)
 	
 	power_target = level.power_target
-	heat_limit = level.heat_limit
+	heat_limit = (level.heat_limit + Progress.upgrade_level(UpgradeCatalog.HEAT_SINK))
 	intro.text = level.ratticus_line
 	
 	bananas.clear()
@@ -520,4 +520,20 @@ func _energy_reward(first_clear: bool) -> int:
 	var reward: float = float(power_total + earned_stars * 2)
 	if not first_clear:
 		reward *= 0.5
+	reward *= (
+		1.0
+		+ 0.25 * float(
+			Progress.upgrade_level(UpgradeCatalog.PEEL_TURBINE)
+		)
+	)
 	return maxi(1, roundi(reward))
+
+func _ignition_radius() -> float:
+	return (
+		IGNITION_RADIUS
+		+ 8.0 * float(
+			Progress.upgrade_level(
+				UpgradeCatalog.IGNITION_COIL
+			)
+		)
+	)
