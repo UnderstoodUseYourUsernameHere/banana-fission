@@ -172,7 +172,7 @@ func _begin_trial() -> void:
 	_power = 0
 	_heat = 0
 	_trial_ticks = 0
-	_trial_running = 0
+	_trial_running = true
 
 func _advance_trial_tick() -> void:
 	_trial_ticks += 1

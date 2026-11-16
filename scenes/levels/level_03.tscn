@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://c0uxyynbnhv46"]
+
+[ext_resource type="Script" uid="uid://b5nhbirq8p17h" path="res://scripts/level.gd" id="1_o4mod"]
+[ext_resource type="Script" uid="uid://bhow36grxpksq" path="res://scripts/formation_rule.gd" id="2_4wrbh"]
+
+[sub_resource type="Resource" id="Resource_rkukh"]
+script = ExtResource("2_4wrbh")
+normal_count = 6
+overripe_count = 1
+guaranteed_solution = true
+shuffle_kinds = false
+anchor = Vector2(310, 290)
+anchor_jitter = Vector2(15, 20)
+spacing = 98.0
+spacing_jitter = 2.0
+position_jitter = 1.0
+separation_from_others = 100.0
+wall_margin = 30.0
+drift_speed = 55.0
+direction_mode = 1
+drift_angle_jitter_degrees = 6.0
+individual_angle_jitter_degrees = 0.0
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[sub_resource type="Resource" id="Resource_o8c3j"]
+script = ExtResource("2_4wrbh")
+normal_count = 4
+shuffle_kinds = false
+pattern = 0
+anchor = Vector2(780, 290)
+anchor_jitter = Vector2(15, 30)
+spacing = 70.0
+rotation_jitter_degrees = 25.0
+separation_from_others = 180.0
+wall_margin = 25.0
+drift_speed = 70.0
+speed_jitter = 5.0
+drift_angle_degrees = 8.0
+direction_mode = 1
+individual_angle_jitter_degrees = 5.0
+metadata/_custom_type_script = "uid://bhow36grxpksq"
+
+[node name="Level" type="Node2D" unique_id=1515496435]
+script = ExtResource("1_o4mod")
+title = "Overripe Bananas and Hubris"
+ratticus_line = "ANOTHER BATCH COMIN' IN! THESE SUCKERS THINK THEYRE GETTING THE GOOD STUFF! "
+power_target = 9
+heat_limit = 11
+gold_heat_limit = 10
+formations = Array[ExtResource("2_4wrbh")]([SubResource("Resource_rkukh"), SubResource("Resource_o8c3j")])

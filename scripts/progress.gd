@@ -2,7 +2,7 @@ extends Node
 
 const SAVE_PATH := "user://progress.cfg"
 
-var levels: Array[PackedScene] = [preload("res://scenes/levels/level_01.tscn"), preload("res://scenes/levels/level_02.tscn")]
+var levels: Array[PackedScene] = [preload("res://scenes/levels/level_01.tscn"), preload("res://scenes/levels/level_02.tscn"), preload("res://scenes/levels/level_03.tscn")]
 var current_level: int = 0
 var attempt_seed: int = 0
 var highest_cleared: int = -1
