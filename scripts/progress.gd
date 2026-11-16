@@ -45,11 +45,14 @@ func record_clear(star_count: int) -> void:
 
 func reset_all() -> void:
 	highest_cleared = -1
+	current_level = 0
+	attempt_seed = 0
 	attempts.clear()
 	best_stars.clear()
 	upgrades.clear()
 	toggles.clear()
 	energy = 0
+	shop_return_scene = "res://scenes/title.tscn"
 	save_progress()
 
 func save_progress() -> void:
@@ -83,7 +86,7 @@ func stars_for(index: int) -> int:
 
 func add_energy(amount: int) -> void:
 	energy += maxi(amount, 0)
-	save_progress
+	save_progress()
 
 func upgrade_level(id: String) -> int:
 	return int(upgrades.get(id, 0))
@@ -93,7 +96,7 @@ func has_upgrade(id: String) -> bool:
 
 func buy_upgrade(id: String) -> bool:
 	var cost: int = UpgradeCatalog.next_cost(id, upgrade_level(id))
-	if cost < 0 or energy < cost or not UpgradeCatalog.is_Unlocked(id):
+	if cost < 0 or energy < cost or not UpgradeCatalog.is_unlocked(id):
 		return false
 	
 	energy -= cost

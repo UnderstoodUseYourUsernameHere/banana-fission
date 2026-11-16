@@ -57,6 +57,16 @@ offset_bottom = 522.0
 focus_mode = 0
 text = "RESET PROGRESS!"
 
+[node name="ShopButton" type="Button" parent="." unique_id=398412779]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 380.0
+offset_top = 270.0
+offset_right = 580.0
+offset_bottom = 306.0
+focus_mode = 0
+text = "Ratticus' Shop!"
+
 [node name="Levels" type="HBoxContainer" parent="." unique_id=967992193]
 layout_mode = 0
 offset_top = 300.0

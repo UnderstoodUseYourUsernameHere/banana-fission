@@ -100,11 +100,10 @@ func _on_ignited(world_position: Vector2) -> void:
 	_spawn_pulse(world_position, IGNITION_RADIUS, IGNITION_COLOR)
 	_update_status()
 
-func _on_banana_split(banana: Banana) -> void:
+func _on_banana_split(banana: Banana) -> void:	
 	split_count += 1
 	_play_split_sound(banana)
 	_add_shake(OVERRIPE_SHAKE if banana.kind == Banana.Kind.OVERRIPE else SPLIT_SHAKE)
-	_flash(Color("ff3020"), 0.45, 0.4)
 	_spawn_split_burst(banana.global_position)
 	_spawn_split_halves(banana)
 	power_total += banana.power_yield
@@ -114,6 +113,7 @@ func _on_banana_split(banana: Banana) -> void:
 	
 	if heat_total > heat_limit:
 		_add_shake(OVERHEAT_SHAKE)
+		_flash(Color("ff3020"), 0.45, 0.4)
 		_finish_round()
 		return
 	
@@ -398,11 +398,20 @@ func _won() -> bool:
 
 func _on_continue_pressed() -> void:
 	Progress.attempt_seed = 0
+	
+	var return_scene: String
+	
 	if Progress.is_last_level():
-		Progress.current_level = 0
+		return_scene = "res://scenes/title.tscn"
 	else:
 		Progress.current_level += 1
-	get_tree().reload_current_scene()
+		return_scene = "res://scenes/main.tscn"
+	
+	if UpgradeCatalog.shop_unlocked():
+		Progress.shop_return_scene = return_scene
+		get_tree().change_scene_to_file("res://scenes/shop.tscn")
+	else:
+		get_tree().change_scene_to_file(return_scene)
 
 func _calculate_stars() -> int:
 	if not _won():

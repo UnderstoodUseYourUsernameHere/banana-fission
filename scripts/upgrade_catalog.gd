@@ -10,7 +10,8 @@ const PEEL_TURBINE: String = "peel_turbine"
 const SHOP_UNLOCK_AFTER: int = 1
 
 const ALL: Array = [
-	{"id": IGNITION_COIL, "name": "Ignition Coil", "costs": [10, 20, 35], "unlock_after": 1, "description": "+1 heat limit per level. Does not change gold target."},
+	{"id": IGNITION_COIL, "name": "Ignition Coil", "costs": [10, 20, 35], "unlock_after": 1, "description": "+8 starter pulse radius per level."},
+	{"id": HEAT_SINK, "name": "Heat Sink", "costs": [15, 30], "unlock_after": 1, "description": "+1 heat limit per level. Doesnt change the gold target level"},
 	{"id": AUTO_SCRAM, "name": "Auto-SCRAM", "costs": [20], "unlock_after": 1, "description": "Shuts down the reaction as soon as energy target is reached, caps rating at 2/3. [T] to toggle"},
 	{"id": AUTO_IGNITE, "name": "Auto-Ignite", "costs": [30, 45], "unlock_after": 2, "description": "Fires the starter pulse for you. Level 2 fires faster. [Y] toggles."},
 	{"id": PEEL_TURBINE, "name": "Peel Turbine", "costs": [25, 50], "unlock_after": 2, "description": "+25% energy per level from each clear."}
@@ -31,7 +32,7 @@ static func next_cost(id: String, current_level: int) -> int:
 		return -1
 	return int(costs[current_level])
 
-static func is_Unlocked(id: String) -> bool:
+static func is_unlocked(id: String) -> bool:
 	return Progress.highest_cleared >= int(get_def(id).get("unlock_after", 0))
 
 static func shop_unlocked() -> bool:

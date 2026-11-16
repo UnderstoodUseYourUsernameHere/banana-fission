@@ -3,10 +3,13 @@ extends Control
 @onready var start_button: Button = $%Start
 @onready var reset_button: Button = $%Reset
 @onready var level_row: HBoxContainer = $Levels
+@onready var shop_button: Button = $%ShopButton
 
 func _ready() -> void:
 	start_button.pressed.connect(_on_start)
 	reset_button.pressed.connect(_on_reset)
+	shop_button.visible = UpgradeCatalog.shop_unlocked()
+	shop_button.pressed.connect(_on_shop)
 	_build_level_buttons()
 
 func _build_level_buttons() -> void:
@@ -38,3 +41,8 @@ func _play_level(index: int) -> void:
 func _on_reset() -> void:
 	Progress.reset_all()
 	_build_level_buttons()
+	shop_button.visible = UpgradeCatalog.shop_unlocked()
+
+func _on_shop() -> void:
+	Progress.shop_return_scene = "res://scenes/title.tscn"
+	get_tree().change_scene_to_file("res://scenes/shop.tscn")
