@@ -70,6 +70,8 @@ var shake_strength: float = 0.0
 var heat_danger: bool = false
 var energy_earned: int = 0
 var auto_scram_triggered: bool = false
+var auto_ignite_used: bool = false
+var aiming_time: float = 0.0
 
 var layout_ready: bool = false
 var layout_error: String = ""
@@ -90,12 +92,14 @@ func _ready() -> void:
 	_update_status()
 	print("Bananilator ready!")
 
-func _on_ignited(world_position: Vector2) -> void:
+func _on_ignited(world_position: Vector2, automated: bool = false) -> void:
 	if not layout_ready or state != RoundState.AIMING:
 		return
 	
+	auto_ignite_used = automated
 	Progress.record_attempt()
 	state = RoundState.REACTING
+	aiming_time = 0.0
 	aim.active = false
 	_play_sfx(ignite_sound)
 	intro.visible = false
@@ -149,6 +153,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_toggle_upgrade(UpgradeCatalog.AUTO_SCRAM)
 		return
 	
+	if event.is_action_pressed("toggle_auto_ignite"):
+		get_viewport().set_input_as_handled()
+		_toggle_upgrade(UpgradeCatalog.AUTO_IGNITE)
+		aiming_time = 0.0
+		return
+	
 	if event.is_action_pressed("new_layout"):
 		get_viewport().set_input_as_handled()
 		Progress.attempt_seed = 0
@@ -184,6 +194,16 @@ func _physics_process(delta: float) -> void:
 		for banana in bananas:
 			banana.advance_motion(delta, chamber_bounds)
 	
+	if state == RoundState.AIMING and _auto_ignite_active():
+		aiming_time += delta
+		
+		if aiming_time >= _auto_ignite_delay():
+			var point: Vector2 = _auto_ignite_point()
+			
+			if point != Vector2.INF:
+				_spawn_float_text(point + Vector2(0, -30), "AUTO-IGNITE!", Color("88e0ff"), 18)
+				_on_ignited(point, true)
+				return
 	if state != RoundState.REACTING:
 		return
 	
@@ -207,7 +227,6 @@ func _physics_process(delta: float) -> void:
 			banana.split()
 			if state != RoundState.REACTING:
 				return
-		
 	if active_pulses.is_empty():
 		_finish_round()
 
@@ -268,7 +287,7 @@ func _update_status() -> void:
 	
 	if auto_scram_triggered:
 		scram_prefix = "AUTO-SCRAM - "
-	else:
+	elif scram_used:
 		scram_prefix = "SCRAMMED - "
 	
 	match state:
@@ -404,10 +423,10 @@ func _generate_bananas(seed_value: int) -> bool:
 		banana.kind = spec["kind"]
 		banana.drift_speed = float(spec["speed"])
 		banana.start_angle_degrees = float(spec["angle"])
+		banana.from_guaranteed = bool(spec.get("guaranteed", false))
 		
 		banana.position = level.to_local(world_position)
 		banana.split_occurred.connect(_on_banana_split)
-		
 		level.add_child(banana)
 		bananas.append(banana)
 	
@@ -440,6 +459,9 @@ func _on_continue_pressed() -> void:
 func _calculate_stars() -> int:
 	if not _won():
 		return 0
+	
+	if auto_ignite_used:
+		return 2
 	
 	if scram_used: 
 		return 2 if auto_scram_triggered else 1
@@ -573,14 +595,70 @@ func _toggle_upgrade(id: String) -> void:
 	Progress.set_toggle(id, not Progress.is_toggle_on(id))
 
 func _update_automation_label() -> void:
-	if not Progress.has_upgrade(UpgradeCatalog.AUTO_SCRAM):
+	var parts: PackedStringArray = []
+	if Progress.has_upgrade(UpgradeCatalog.AUTO_SCRAM):
+		parts.append("AUTO-SCRAM [T]: %s" % ("ON" if Progress.is_toggle_on(UpgradeCatalog.AUTO_SCRAM) else "OFF"))
+	if Progress.has_upgrade(UpgradeCatalog.AUTO_IGNITE):
+		var ignite_text: String = "AUTO-IGNITE [Y]: %s" % (
+			"ON"
+			if Progress.is_toggle_on(UpgradeCatalog.AUTO_IGNITE)
+			else "OFF"
+		)
+		
+		if _auto_ignite_active() and state == RoundState.AIMING:
+			ignite_text += " (%.1fs)" % maxf(0.0, _auto_ignite_delay() - aiming_time)
+		parts.append(ignite_text)
+	
+	if parts.is_empty():
 		automation_label.text = ""
-		return
-	
-	if not level.allow_automation:
-		automation_label.text = ("AUTOMATION OFFLINE - " + "Ratticus insists you do this one yourself.")
-		return
-	
-	automation_label.text = (
-		"AUTO-SCRAM [T]: %s" % ("ON" if Progress.is_toggle_on(UpgradeCatalog.AUTO_SCRAM) else "OFF")
+	elif not level.allow_automation:
+		automation_label.text = ("AUTOMATION OFFLINE - " + "Ratticus insists you do this yourself.")
+	else:
+		automation_label.text = "  |  ".join(parts)
+
+func _auto_ignite_active() -> bool:
+	return (
+		level.allow_automation and Progress.has_upgrade(UpgradeCatalog.AUTO_IGNITE)
+		and Progress.is_toggle_on(UpgradeCatalog.AUTO_IGNITE)
 	)
+
+func _auto_ignite_delay() -> float:
+	return maxf(
+		1.0,
+		3.0 - float(
+			Progress.upgrade_level(UpgradeCatalog.AUTO_IGNITE) - 1
+		)
+	)
+
+func _auto_ignite_point() -> Vector2:
+	var candidates: Array[Banana] = []
+	for banana in bananas:
+		if (
+			banana.alive
+			and banana.from_guaranteed
+		):
+			candidates.append(banana)
+	
+	if candidates.is_empty():
+		for banana in bananas:
+			if banana.alive:
+				candidates.append(banana)
+	
+	if candidates.is_empty():
+		return Vector2.INF
+	
+	var centroid := Vector2.ZERO
+	for banana in candidates:
+		centroid += banana.global_position
+	
+	centroid /= float(candidates.size())
+	
+	var best: Banana = candidates[0]
+	var best_distance: float = -1.0
+	
+	for banana in candidates:
+		var distance: float = (banana.global_position.distance_squared_to(centroid))
+		if distance > best_distance:
+			best_distance = distance
+			best = banana
+	return best.global_position

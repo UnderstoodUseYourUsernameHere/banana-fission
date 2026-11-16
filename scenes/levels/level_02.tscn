@@ -8,6 +8,7 @@ script = ExtResource("2_vq1pa")
 normal_count = 6
 guaranteed_solution = true
 shuffle_kinds = false
+pattern = 2
 anchor = Vector2(305, 290)
 anchor_jitter = Vector2(12, 18)
 spacing = 96.0

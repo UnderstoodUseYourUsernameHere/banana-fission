@@ -13,6 +13,7 @@ enum Kind { NORMAL, OVERRIPE }
 
 @export_range(10.0, 300.0, 1.0) var reaction_radius: float = 90.0
 var alive: bool = true
+var from_guaranteed: bool = false
 var _velocity: Vector2 = Vector2.ZERO
 
 @export_range(0, 20, 1) var power_yield: int = 1
