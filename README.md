@@ -1,9 +1,13 @@
+
 Made in Godot 4
 
 ## ChernoBanana
 
 What it is: 
 * ChernoBanana, or Banana fission, i dont care which, is a game i figured would fit the idea of "splitting", the circles are meant to represent bananas, and the play area is meant to represent a nuclear reactor. You "split" the bananas, and also split atoms to create energy and heat! Pretty neat, i hope.
+
+* How i made it:
+* I used Godot4 and Gdscript, i love those two! 
 
 ## How to use
 
@@ -23,6 +27,8 @@ LMB for igniting, G for a new layout in that level, R to restart that specific l
 ## Gameplay loop
 
 The gameplay loop is rather simple, you click on the bananas, and make sure the chain of reactions isnt *too* hot or else you risk overblowing the Heat limit! 
+
+<img width="961" height="605" alt="BananaSplitting" src="https://github.com/user-attachments/assets/547d45d5-9a1b-4927-b7a9-c30fe94013b3" />
 
 ## Features
 
